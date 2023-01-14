@@ -1,24 +1,24 @@
-var express = require('express');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-require("dotenv").config();
+const express = require('express');
+const app = express();
+// const cookieParser = require('cookie-parser');
+const morgan = require('morgan');
+const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
-const mongoose = require("mongoose");
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
 const expressValidator = require("express-validator");
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-mongoose.set('strictQuery', false);
+dotenv.config();
+const db = require('./db');
 
-var app = express();
 
-// view engine setup
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-
+// middleware
+app.use(morgan("dev"));
+app.use(bodyParser.json());
+const { check, validationResult } = require('express-validator');
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 
 module.exports = app;
+
+

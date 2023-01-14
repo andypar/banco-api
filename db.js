@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
+mongoose.set('strictQuery', false);
 
-main()
-	.then((res) => console.log("Connection success"))
-	.catch((err) => console.log(err));
+// db
+mongoose.connect(process.env.MONGO_URL)
+    .then(() => console.log("DB Conectada"))
 
-async function main() {
-	await mongoose.connect(process.env.MONGO_URL);
+mongoose.connection.on('error', err => {
+    console.log(`Error de conexion: ${err.message}`);
+});
 
-	// use `await mongoose.connect('mongodb://user:password@localhost:27017/test');` if your database has auth enabled
-}

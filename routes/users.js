@@ -12,15 +12,16 @@ router.put("/:id", updateUser);
 router.delete("/:id", deleteUser);
 
 
-function getAllUsers(req, res, next) {
-	const users = User.find({})
+function getAllUsers(req, res) {
+
+	const users = User.find()
+		.select("userName")
 		.then((users) => {
 			res.json({users})
 		})
 		.catch(err => console.log(err));
-	next();
+		
 }
-
 
 
 async function getUserById(req, res, next) {
@@ -44,14 +45,21 @@ async function getUserById(req, res, next) {
 	res.send(user);
 }
 
+
 function createUser(req, res, next) {
 	console.log("createUser: ", req.body);
 
-	const user = req.body;
+	const user = new User (req.body);
 
 	// TODO: create user
+	user.save()
+	.then(result => {
+		res.json({
+			user: result
+		});
+	});
 
-	res.send(`User created :  ${user.email}`);
+	res.send(`User created :  ${user.userName}`);
 }
 
 function deleteUser(req, res, next) {
