@@ -14,7 +14,8 @@ const db = require('./db');
 // middleware
 app.use(morgan("dev"));
 app.use(bodyParser.json());
-const { check, validationResult } = require('express-validator');
+//const { check, validationResult } = require('express-validator');
+app.use(expressValidator());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
