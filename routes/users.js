@@ -2,7 +2,7 @@ const express = require("express");
 const User = require("../schemas/users");
 const router = express.Router();
 const mongoose = require("mongoose");
-const validator = require('../validator');
+const validator = require("../validator");
 
 /* GET users listing. */
 router.get("/", getAllUsers);
@@ -11,94 +11,102 @@ router.post("/", validator.createUserValidator, createUser);
 router.put("/:id", validator.createUserValidator, updateUser);
 router.delete("/:id", deleteUser);
 
-
-function getAllUsers(req, res) {
-
-	const users = User.find()
-		.select("userName")
-		.then((users) => {
-			res.json({users})
-		})
-		.catch(err => console.log(err));
-		
+async function getAllUsers(req, res, next) {
+  try {
+    const users = await User.find();
+    res.send(users);
+  } catch (err) {
+    next(err);
+  }
 }
-
 
 async function getUserById(req, res, next) {
-	console.log("getUserById with id: ", req.params.id);
+  console.log("getUserById with id: ", req.params.id);
 
-	if (!req.params.id) {
-		res.status(404).send("Id not found");
-	}
+  if (!req.params.id) {
+    res.status(400).send("The param id is not defined");
+  }
 
-	console.log(
-		"El usuario que se esta intentando de buscar es el que tiene el id: ",
-		req.params.id
-	);
+  try {
+    const user = await User.findById(req.params.id);
 
-	const user = await User.findById(req.params.id);
-
-	if (!user) {
-		res.status(404).send("user not found");
-	}
-
-	res.send(user);
+    if (!user) {
+      res.status(404).send("user not found");
+    }
+    res.send(user);
+  } catch (err) {
+    next(err);
+  }
 }
 
+async function createUser(req, res) {
+  console.log("createUser: ", req.body.email);
 
-function createUser(req, res, next) {
-	console.log("createUser: ", req.body);
-
-	const user = new User (req.body);
-
-	user.save()
-	.then(result => {
-		res.json({
-			user: result
-		});
-	});
-
-	res.send(`User created :  ${user.userName}`);
+  try {
+    const useremail = await User.findOne({ email: req.body.email });
+    if (useremail) {
+      res.status(400).send("The email is already in use");
+    } else {
+      const user = new User(req.body);
+      user.save().then(res.send(user));
+    }
+  } catch (err) {
+    next(err);
+  }
 }
 
+async function updateUser(req, res, next) {
+  console.log("updateUser with id: ", req.params.id);
 
-async function deleteUser(req, res) {
-	console.log("deleteUser with id: ", req.params.id);
+  if (!req.params.id) {
+    res.status(400).send("The param id is not defined");
+  }
 
-	if (!req.params.id) {
-		res.status(500).send("The param id is not defined");
-	}
-	
-	const userToDelete = await User.findById(req.params.id);
+  const user = req.body;
 
-	if (!userToDelete) {
-		res.status(404).send("user not found");
-	}
+  try {
+    const userToUpdate = await User.findById(req.params.id);
 
-	await User.deleteOne({ _id: userToDelete._id })
+    if (!userToUpdate) {
+      res.status(404).send("user not found");
+    }
 
-	res.send(`User deleted :  ${req.params.id}`);
+    try {
+      const useremail = await User.findOne({ email: req.body.email });
+      if (useremail && useremail.id != userToUpdate.id) {
+        res.status(400).send("The email is already in use");
+      } else {
+        userToUpdate.email = user.email;
+        userToUpdate.password = user.password;
+        await userToUpdate.save();
+        res.send(userToUpdate);
+      }
+    } catch (err) {
+      next(err);
+    }
+  } catch (err) {
+    next(err);
+  }
 }
 
+async function deleteUser(req, res, next) {
+  console.log("deleteUser with id: ", req.params.id);
 
-async function updateUser(req, res) {
+  if (!req.params.id) {
+    res.status(400).send("The param id is not defined");
+  }
 
-	console.log("updateUser with id: ", req.params.id);
+  try {
+    const userToDelete = await User.findById(req.params.id);
 
-	const user = req.body
-	const userToUpdate = await User.findById(req.params.id);
-
-	if (!userToUpdate) {
-		res.status(404).send("user not found");
-	}
-
-    userToUpdate.userName = user.userName
-	userToUpdate.password = user.password
-    await userToUpdate.save()
-	res.send(userToUpdate)
-
-	res.send(`User updated :  ${user.userName}`);
-};
-
+    if (!userToDelete) {
+      res.status(404).send("user not found");
+    }
+    await User.deleteOne({ _id: userToDelete._id });
+    res.send(`User deleted :  ${req.params.id}`);
+  } catch (err) {
+    next(err);
+  }
+}
 
 module.exports = router;
