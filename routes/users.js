@@ -3,6 +3,8 @@ const User = require("../schemas/users");
 const router = express.Router();
 const mongoose = require("mongoose");
 const validator = require("../validator");
+const bcrypt = require('bcrypt');
+
 
 /* GET users listing. */
 router.get("/", getAllUsers);
@@ -39,16 +41,24 @@ async function getUserById(req, res, next) {
   }
 }
 
-async function createUser(req, res) {
+async function createUser(req, res, next) {
   console.log("createUser: ", req.body.email);
+
+  const user = req.body
 
   try {
     const useremail = await User.findOne({ email: req.body.email });
     if (useremail) {
       res.status(400).send("The email is already in use");
     } else {
-      const user = new User(req.body);
-      user.save().then(res.send(user));
+
+	  const saltRounds = 10;
+	  const hashedPassword = await bcrypt.hash(user.password, saltRounds)
+
+      const newUser = new User({email: req.body.email, password: hashedPassword});
+      newUser
+		.save()
+		.then(res.send(newUser));
     }
   } catch (err) {
     next(err);
@@ -76,8 +86,12 @@ async function updateUser(req, res, next) {
       if (useremail && useremail.id != userToUpdate.id) {
         res.status(400).send("The email is already in use");
       } else {
+		
+		const saltRounds = 10;
+		const hashedPassword = await bcrypt.hash(user.password, saltRounds)
+
         userToUpdate.email = user.email;
-        userToUpdate.password = user.password;
+        userToUpdate.password = hashedPassword;
         await userToUpdate.save();
         res.send(userToUpdate);
       }

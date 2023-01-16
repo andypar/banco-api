@@ -7,6 +7,7 @@
     "dev": "nodemon ./bin/www"
   },
   "dependencies": {
+    "bcrypt": "^5.1.0",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "dotenv": "^16.0.3",
@@ -14,8 +15,10 @@
     "express-validator": "^5.3.1",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
+    "mongodb": "^4.13.0",
     "mongoose": "^6.8.3",
     "morgan": "~1.9.1",
+    "nomad-cli": "^2.0.10",
     "uglify-js": "^3.17.4"
   }
 }
