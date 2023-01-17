@@ -1,5 +1,5 @@
 const express = require("express");
-const User = require("../schemas/users");
+const User = require("../schemas/user");
 const router = express.Router();
 const mongoose = require("mongoose");
 const validator = require("../validator");
@@ -12,6 +12,7 @@ router.get("/:id", getUserById);
 router.post("/", validator.createUserValidator, createUser);
 router.put("/:id", validator.createUserValidator, updateUser);
 router.delete("/:id", deleteUser);
+
 
 async function getAllUsers(req, res, next) {
   try {

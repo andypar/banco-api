@@ -5,7 +5,7 @@ const morgan = require('morgan');
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
+const usersRouter = require('./routes/user');
 const expressValidator = require("express-validator");
 dotenv.config();
 const db = require('./db');

@@ -1,7 +1,7 @@
 
 exports.createUserValidator = (req, res, next) => {
 
-    //Usuario
+    //Email
     req.check('email', "Escribe un correo").notEmpty();
     req.check('email', "El formato de correo es erroneo").isEmail();
     req.check('email', "El correo debe tener entre 3 y 100 caracteres").isLength({
