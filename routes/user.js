@@ -1,10 +1,9 @@
 const express = require("express");
-const User = require("../schemas/user");
+const {models} = require("../db");
 const router = express.Router();
 const mongoose = require("mongoose");
 const validator = require("../validator");
 const bcrypt = require('bcrypt');
-
 
 /* GET users listing. */
 router.get("/", getAllUsers);
@@ -16,7 +15,7 @@ router.delete("/:id", deleteUser);
 
 async function getAllUsers(req, res, next) {
   try {
-    const users = await User.find();
+    const users = await models.User.find();
     res.send(users);
   } catch (err) {
     next(err);
@@ -31,7 +30,7 @@ async function getUserById(req, res, next) {
   }
 
   try {
-    const user = await User.findById(req.params.id);
+    const user = await models.User.findById(req.params.id);
 
     if (!user) {
       res.status(404).send("user not found");
@@ -46,20 +45,36 @@ async function createUser(req, res, next) {
   console.log("createUser: ", req.body.email);
 
   const user = req.body
+  console.log(user.gender)
 
   try {
-    const useremail = await User.findOne({ email: req.body.email });
+
+    const gender = await models.Gender.findOne({ description: user.gender })
+    if (!gender) {
+      res.status(404).send('Gender not found');
+    }
+
+    const personType = await models.PersonType.findOne({ description: user.personType })
+    if (!personType) {
+      res.status(404).send('personType not found');
+    }
+
+    const useremail = await models.User.findOne({ email: user.email });
     if (useremail) {
       res.status(400).send("The email is already in use");
     } else {
+    console.log(useremail)
+
 
 	  const saltRounds = 10;
 	  const hashedPassword = await bcrypt.hash(user.password, saltRounds)
 
-      const newUser = new User({email: req.body.email, password: hashedPassword});
+      const newUser = new models.User({name: user.name, gender: gender._id, dni: user.dni, dateBirth: user.dateBirth, email: user.email, password: hashedPassword, username: user.username, telephone: user.telephone, personType: personType._id, openedAccountDate: user.openedAccountDate, cuilCuit: user.cuilCuit});
+
       newUser
-		.save()
-		.then(res.send(newUser));
+      .save()
+      .then(res.send(newUser));
+
     }
   } catch (err) {
     next(err);
@@ -74,16 +89,27 @@ async function updateUser(req, res, next) {
   }
 
   const user = req.body;
+  console.log(user)
 
   try {
-    const userToUpdate = await User.findById(req.params.id);
 
+    const userToUpdate = await models.User.findById(req.params.id);
     if (!userToUpdate) {
       res.status(404).send("user not found");
     }
 
+    const gender = await models.Gender.findOne({ description: user.gender })
+    if (!gender) {
+      res.status(404).send('Gender not found');
+    }
+
+    const personType = await models.PersonType.findOne({ description: user.personType })
+    if (!personType) {
+      res.status(404).send('personType not found');
+    }
+
     try {
-      const useremail = await User.findOne({ email: req.body.email });
+      const useremail = await models.User.findOne({ email: user.email });
       if (useremail && useremail.id != userToUpdate.id) {
         res.status(400).send("The email is already in use");
       } else {
@@ -93,6 +119,15 @@ async function updateUser(req, res, next) {
 
         userToUpdate.email = user.email;
         userToUpdate.password = hashedPassword;
+        userToUpdate.name = user.name;
+        userToUpdate.dni = user.dni;
+        userToUpdate.dateBirth = user.dateBirth;
+        userToUpdate.username = user.username;
+        userToUpdate.telephone = user.telephone;
+        userToUpdate.cuilCuit = user.cuilCuit;
+        userToUpdate.gender = gender;
+        userToUpdate.personType = personType;
+
         await userToUpdate.save();
         res.send(userToUpdate);
       }
@@ -104,6 +139,7 @@ async function updateUser(req, res, next) {
   }
 }
 
+
 async function deleteUser(req, res, next) {
   console.log("deleteUser with id: ", req.params.id);
 
@@ -112,12 +148,14 @@ async function deleteUser(req, res, next) {
   }
 
   try {
-    const userToDelete = await User.findById(req.params.id);
+    const userToDelete = await models.User.findById(req.params.id);
+    console.log(userToDelete)
 
     if (!userToDelete) {
       res.status(404).send("user not found");
     }
-    await User.deleteOne({ _id: userToDelete._id });
+
+    await models.User.deleteOne({ _id: userToDelete._id });
     res.send(`User deleted :  ${req.params.id}`);
   } catch (err) {
     next(err);
