@@ -1,9 +1,9 @@
-const validate = require("mongoose-validator");
+// const validate = require("mongoose-validator");
 const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 const { ObjectId } = Schema.Types;
-const emailValidator = validate({ validator: "isEmail" });
+// const emailValidator = validate({ validator: "isEmail" });
 
 const userSchema = new Schema({
   name: {
@@ -19,13 +19,13 @@ const userSchema = new Schema({
     unique: true,
     lowercase: true,
     trim: true,
-    validate: emailValidator,
+    //validate: emailValidator,
   },
   username: { type: String, required: true, unique: true },
   password: { type: String, select: false },
   telephone: { type: String },
   personType: { type: ObjectId, ref: "PersonType", required: true },
-  //products: { type: ObjectId, ref: 'Products', required: true },
+  products: { type: ObjectId, ref: 'Products'},
   createdAt: { type: Date, required: true },
   updatedAt: { type: Date, required: true },
   cuilCuit: { type: String, required: true, unique: true },
