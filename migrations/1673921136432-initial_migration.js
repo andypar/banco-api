@@ -1,15 +1,78 @@
-/**
- * Make any changes you need to make to the database here
- */
-async function up () {
-  // Write migration here
+const { models } = require("../db");
+
+async function up() {
+  await models.GenderType.create([
+    {
+      description: "f",
+    },
+    {
+      description: "m",
+    },
+    {
+      description: "i",
+    },
+  ])
+
+  await models.CurrencyType.create([
+    {
+      description: "ars",
+    },
+    {
+      description: "usd",
+    },
+  ])
+
+  await models.MovementType.create([
+    {
+      description: "transferencia",
+    },
+    {
+      description: "deposito",
+    },
+    {
+      description: "extraccion",
+    },
+  ])
+
+  await models.ProductType.create([
+    {
+      description: "ca",
+    },
+    {
+      description: "cc",
+    },
+  ])
+
+  await models.PersonType.create([
+    {
+      description: "f",
+    },
+    {
+      description: "j",
+    },
+  ])
 }
 
-/**
- * Make any changes that UNDO the up function side effects here (if possible)
- */
-async function down () {
-  // Write migration here
+async function down() {
+  await models.GenderType.deleteMany({
+    description: ["f", "m", "i"],
+  });
+
+  await models.CurrencyType.deleteMany({
+    description: ["ars", "usd"],
+  });
+
+  await models.MovementType.deleteMany({
+    description: ["transferencia", "deposito", "extraccion"],
+  });
+
+  await models.ProductType.deleteMany({
+    description: ["ca", "cc"],
+  });
+
+  await models.PersonType.deleteMany({
+    description: ["f", "j"],
+  });
 }
 
 module.exports = { up, down };

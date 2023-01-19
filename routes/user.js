@@ -1,9 +1,9 @@
 const express = require("express");
-const {models} = require("../db");
+const { models } = require("../db");
 const router = express.Router();
 const mongoose = require("mongoose");
 const validator = require("../validator");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 
 /* GET users listing. */
 router.get("/", getAllUsers);
@@ -11,7 +11,6 @@ router.get("/:id", getUserById);
 router.post("/", validator.createUserValidator, createUser);
 router.put("/:id", validator.createUserValidator, updateUser);
 router.delete("/:id", deleteUser);
-
 
 async function getAllUsers(req, res, next) {
   try {
@@ -44,37 +43,46 @@ async function getUserById(req, res, next) {
 async function createUser(req, res, next) {
   console.log("createUser: ", req.body.email);
 
-  const user = req.body
-  console.log(user.gender)
+  const user = req.body;
 
   try {
-
-    const gender = await models.Gender.findOne({ description: user.gender })
+    const gender = await models.GenderType.findOne({
+      description: user.gender,
+    });
     if (!gender) {
-      res.status(404).send('Gender not found');
+      res.status(404).send("GenderType not found");
     }
 
-    const personType = await models.PersonType.findOne({ description: user.personType })
+    const personType = await models.PersonType.findOne({
+      description: user.personType,
+    });
     if (!personType) {
-      res.status(404).send('personType not found');
+      res.status(404).send("personType not found");
     }
 
     const useremail = await models.User.findOne({ email: user.email });
     if (useremail) {
       res.status(400).send("The email is already in use");
     } else {
-    console.log(useremail)
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(user.password, saltRounds);
 
+      const newUser = new models.User({
+        name: user.name,
+        gender: gender._id,
+        dni: user.dni,
+        dateBirth: user.dateBirth,
+        email: user.email,
+        password: hashedPassword,
+        username: user.username,
+        telephone: user.telephone,
+        personType: personType._id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        cuilCuit: user.cuilCuit,
+      });
 
-	  const saltRounds = 10;
-	  const hashedPassword = await bcrypt.hash(user.password, saltRounds)
-
-      const newUser = new models.User({name: user.name, gender: gender._id, dni: user.dni, dateBirth: user.dateBirth, email: user.email, password: hashedPassword, username: user.username, telephone: user.telephone, personType: personType._id, openedAccountDate: user.openedAccountDate, cuilCuit: user.cuilCuit});
-
-      newUser
-      .save()
-      .then(res.send(newUser));
-
+      newUser.save().then(res.send(newUser));
     }
   } catch (err) {
     next(err);
@@ -89,23 +97,25 @@ async function updateUser(req, res, next) {
   }
 
   const user = req.body;
-  console.log(user)
 
   try {
-
     const userToUpdate = await models.User.findById(req.params.id);
     if (!userToUpdate) {
       res.status(404).send("user not found");
     }
 
-    const gender = await models.Gender.findOne({ description: user.gender })
+    const gender = await models.GenderType.findOne({
+      description: user.gender,
+    });
     if (!gender) {
-      res.status(404).send('Gender not found');
+      res.status(404).send("GenderType not found");
     }
 
-    const personType = await models.PersonType.findOne({ description: user.personType })
+    const personType = await models.PersonType.findOne({
+      description: user.personType,
+    });
     if (!personType) {
-      res.status(404).send('personType not found');
+      res.status(404).send("personType not found");
     }
 
     try {
@@ -113,9 +123,8 @@ async function updateUser(req, res, next) {
       if (useremail && useremail.id != userToUpdate.id) {
         res.status(400).send("The email is already in use");
       } else {
-		
-		const saltRounds = 10;
-		const hashedPassword = await bcrypt.hash(user.password, saltRounds)
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(user.password, saltRounds);
 
         userToUpdate.email = user.email;
         userToUpdate.password = hashedPassword;
@@ -127,6 +136,7 @@ async function updateUser(req, res, next) {
         userToUpdate.cuilCuit = user.cuilCuit;
         userToUpdate.gender = gender;
         userToUpdate.personType = personType;
+        userToUpdate.updatedAt = new Date();
 
         await userToUpdate.save();
         res.send(userToUpdate);
@@ -139,7 +149,6 @@ async function updateUser(req, res, next) {
   }
 }
 
-
 async function deleteUser(req, res, next) {
   console.log("deleteUser with id: ", req.params.id);
 
@@ -149,7 +158,6 @@ async function deleteUser(req, res, next) {
 
   try {
     const userToDelete = await models.User.findById(req.params.id);
-    console.log(userToDelete)
 
     if (!userToDelete) {
       res.status(404).send("user not found");
