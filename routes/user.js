@@ -60,9 +60,14 @@ async function createUser(req, res, next) {
       res.status(404).send("personType not found");
     }
 
-    const useremail = await models.User.findOne({ email: user.email });
-    if (useremail) {
-      res.status(400).send("The email is already in use");
+    if (await validateExistingEmail(user)) {
+      res.status(400).send("El email ya se encuentra registrado");
+    } else if (await validateExistingUsername(user)) {
+      res.status(400).send("El usuario ya se encuentra registrado");
+    } else if (await validateExistingDNI(user)) {
+      res.status(400).send("El numero de DNI ya se encuentra registrado");
+    } else if (await validateExistingCUILCUIT(user)) {
+      res.status(400).send("El numero de CUIT/CUIL ya se encuentra registrado");
     } else {
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(user.password, saltRounds);
@@ -120,8 +125,11 @@ async function updateUser(req, res, next) {
 
     try {
       const useremail = await models.User.findOne({ email: user.email });
-      if (useremail && useremail.id != userToUpdate.id) {
-        res.status(400).send("The email is already in use");
+      if (
+        (await validateExistingEmail(user)) &&
+        useremail.id != userToUpdate.id
+      ) {
+        res.status(400).send("El email ya se encuentra registrado");
       } else {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(user.password, saltRounds);
@@ -165,6 +173,58 @@ async function deleteUser(req, res, next) {
 
     await models.User.deleteOne({ _id: userToDelete._id });
     res.send(`User deleted :  ${req.params.id}`);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function validateExistingEmail(user) {
+  try {
+    const useremail = await models.User.findOne({ email: user.email });
+    if (useremail) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function validateExistingUsername(user) {
+  try {
+    const userusername = await models.User.findOne({ username: user.username });
+    if (userusername) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function validateExistingDNI(user) {
+  try {
+    const userdni = await models.User.findOne({ dni: user.dni });
+    if (userdni) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function validateExistingCUILCUIT(user) {
+  try {
+    const usercuilCuit = await models.User.findOne({ cuilCuit: user.cuilCuit });
+    if (usercuilCuit) {
+      return true;
+    } else {
+      return false;
+    }
   } catch (err) {
     next(err);
   }
