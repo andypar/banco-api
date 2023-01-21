@@ -1,5 +1,3 @@
-const requireAll = require("require-all");
-const toCamelCase = require("to-camel-case");
 
 const schemas = {};
 

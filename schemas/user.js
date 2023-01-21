@@ -26,9 +26,10 @@ const userSchema = new Schema({
   telephone: { type: String },
   personType: { type: ObjectId, ref: "PersonType", required: true },
   products: { type: ObjectId, ref: 'Products'},
+  cuilCuit: { type: String, required: true, unique: true },
+  isActive: { type: Boolean },
   createdAt: { type: Date, required: true },
   updatedAt: { type: Date, required: true },
-  cuilCuit: { type: String, required: true, unique: true },
 });
 
 //const User = mongoose.model("User", userSchema);

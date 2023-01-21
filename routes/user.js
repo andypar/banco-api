@@ -9,12 +9,12 @@ const bcrypt = require("bcrypt");
 router.get("/", getAllUsers);
 router.get("/:id", getUserById);
 router.post("/", validator.createUserValidator, createUser);
-router.put("/:id", validator.createUserValidator, updateUser);
+router.put("/:id", validator.updateUserValidator, updateUser);
 router.delete("/:id", deleteUser);
 
 async function getAllUsers(req, res, next) {
   try {
-    const users = await models.User.find();
+    const users = await models.User.find({ isActive: true });
     res.send(users);
   } catch (err) {
     next(err);
@@ -82,9 +82,10 @@ async function createUser(req, res, next) {
         username: user.username,
         telephone: user.telephone,
         personType: personType._id,
+        cuilCuit: user.cuilCuit,
+        isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
-        cuilCuit: user.cuilCuit,
       });
 
       newUser.save().then(res.send(newUser));
@@ -134,14 +135,11 @@ async function updateUser(req, res, next) {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(user.password, saltRounds);
 
+        userToUpdate.name = user.name;
+        userToUpdate.dateBirth = user.dateBirth;
         userToUpdate.email = user.email;
         userToUpdate.password = hashedPassword;
-        userToUpdate.name = user.name;
-        userToUpdate.dni = user.dni;
-        userToUpdate.dateBirth = user.dateBirth;
-        userToUpdate.username = user.username;
         userToUpdate.telephone = user.telephone;
-        userToUpdate.cuilCuit = user.cuilCuit;
         userToUpdate.gender = gender;
         userToUpdate.personType = personType;
         userToUpdate.updatedAt = new Date();

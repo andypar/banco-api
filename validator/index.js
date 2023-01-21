@@ -90,6 +90,77 @@ exports.createUserValidator = async (req, res, next) => {
   next();
 };
 
+exports.updateUserValidator = async (req, res, next) => {
+  // First Name
+  req.check("name.firstName", "El nombre no puede estar vacío").notEmpty();
+
+  // Last Name
+  req.check("name.lastName", "El apellido no puede estar vacío").notEmpty();
+
+  // Date Birth
+  req.checkBody("dateBirth", "Fecha de Nacimiento Inválida").custom((value) => {
+    if (!isValidDate(value)) {
+      return false;
+    }
+    return true;
+  });
+
+  // Email
+  req.check("email", "El email no puede estar vacío").notEmpty();
+  req.check("email", "El formato del correo es erróneo").isEmail();
+  req.check("email", "El correo debe tener como mínimo 5 carácteres").isLength({
+    min: 5,
+  });
+  // req.checkBody('email', "El email ya se encuentra registrado").custom(async(value) => {
+  //     if (validateExistingEmail(value)){
+  //         console.log(await validateExistingEmail(value))
+  //         return false
+  //     } return true
+  // });
+
+  // Password
+  req.check("password", "La contraseña no puede estar vacío").notEmpty();
+  req
+    .check(
+      "password",
+      "La contraseña debe ser una combinación de una mayúscula, una minúscula, un carácter especial, un dígito y un mínimo de 8, un máximo de 20 caracteres de largo"
+    )
+    .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/, "i");
+
+  // Telephone
+  req.check("telephone", "El teléfono no puede estar vacío").notEmpty();
+
+  // check for errors
+  const errors = await req.validationErrors();
+  if (errors) {
+    const firstError = errors.map((error) => error.msg)[0];
+    return res.status(400).json({ error: firstError });
+  }
+
+  // sigue con siguiente middleware
+  next();
+};
+
+
+exports.updateProductValidator = async (req, res, next) => {
+
+  // Alias
+  req.check("alias", "El alias no puede estar vacío").notEmpty();
+  req.check("alias", "El alias debe tener como mínimo 5 carácteres").isLength({
+    min: 5,
+  });
+
+  // check for errors
+  const errors = await req.validationErrors();
+  if (errors) {
+    const firstError = errors.map((error) => error.msg)[0];
+    return res.status(400).json({ error: firstError });
+  }
+
+  // sigue con siguiente middleware
+  next();
+};
+
 function isValidDate(dateString) {
   var regEx = /^\d{4}-\d{2}-\d{2}$/;
   if (!dateString.match(regEx)) return false; // Invalid format

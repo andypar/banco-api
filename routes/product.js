@@ -8,7 +8,7 @@ const validator = require("../validator");
 router.get("/", getAllProducts);
 router.get("/:id", getProductById);
 router.post("/", createProduct);
-router.put("/:id", updateProduct);
+router.put("/:id", validator.updateProductValidator, updateProduct);
 router.delete("/:id", deleteProduct);
 
 async function getAllProducts(req, res, next) {
@@ -59,18 +59,19 @@ async function createProduct(req, res, next) {
       res.status(404).send("CurrencyType not found");
     }
 
-
+    
     if (await validateExistingAlias(product)) {
       res.status(400).send("El alias ya se encuentra registrado");
     } else {
+      const cbuNumber = generate(22);
       const newProduct = new models.Product({
         type: producttype._id,
-        accountNumber: product.accountNumber,
-        cbu: product.cbu,
-        alias: product.alias,
-        balanceAmount: product.balanceAmount,
-        overdraftAmount: product.overdraftAmount,
-        extractionLimit: product.extractionLimit,
+        accountNumber: cbuNumber.substring(3,7)+'/'+cbuNumber.substring(7,19)+'/'+cbuNumber.substring(19,21),
+        cbu: cbuNumber,
+        alias: makealias(5)+'.'+makealias(5)+'.'+makealias(5),
+        balanceAmount: generate(5),
+        overdraftAmount: generate(4),
+        extractionLimit: generate(4),
         currency: currencytype._id,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -115,20 +116,20 @@ async function updateProduct(req, res, next) {
     try {
       const productalias = await models.Product.findOne({ alias: product.alias });
       if (
-        validateExistingAlias(product) &&
+        await validateExistingAlias(product) &&
         productalias.id != productToUpdate.id
       ) {
         res.status(400).send("El alias ya se encuentra registrado");
       } else {
 
-        productToUpdate.type = producttype;
-        productToUpdate.accountNumber = product.accountNumber;
-        productToUpdate.cbu = product.cbu;
+        //productToUpdate.type = producttype;
+        //productToUpdate.accountNumber = product.accountNumber;
+        //productToUpdate.cbu = product.cbu;
         productToUpdate.alias = product.alias;
-        productToUpdate.balanceAmount = product.balanceAmount;
-        productToUpdate.overdraftAmount = product.overdraftAmount;
-        productToUpdate.extractionLimit = product.extractionLimit;
-        productToUpdate.currency = currencytype;
+        //productToUpdate.balanceAmount = product.balanceAmount;
+        //productToUpdate.overdraftAmount = product.overdraftAmount;
+        //productToUpdate.extractionLimit = product.extractionLimit;
+        //productToUpdate.currency = currencytype;
         productToUpdate.updatedAt = new Date();
 
         await productToUpdate.save();
@@ -176,5 +177,32 @@ async function validateExistingAlias(product) {
     next(err);
   }
 }
+
+function generate(n) {
+  var add = 1,
+    max = 12 - add;
+
+  if (n > max) {
+    return generate(max) + generate(n - max);
+  }
+
+  max = Math.pow(10, n + add);
+  var min = max / 10; // Math.pow(10, n) basically 
+  var number = Math.floor(Math.random() * (max - min + 1)) + min;
+
+  return ("" + number).substring(add);
+}
+
+
+function makealias(length) {
+  var result           = '';
+  var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  var charactersLength = characters.length;
+  for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
 
 module.exports = router;
