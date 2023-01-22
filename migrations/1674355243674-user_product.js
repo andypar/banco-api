@@ -1,7 +1,9 @@
 const { models } = require("../db");
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
 async function up() {
+  const hashedPassword = await bcrypt.hash("Perritos123!", 10);
   await models.User.create([
     {
       _id: new mongoose.Types.ObjectId('000000000000000000000000'),
@@ -15,9 +17,12 @@ async function up() {
       email: "andypar29@hotmail.com",
       password: "Perritos123!!",
       username: "andypar29",
+      password: hashedPassword,
       telephone: "1564078964",
       personType: "000000000000000000000000", //f
+      products: [],
       cuilCuit: "27-34401327-1",
+      isActive: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -33,9 +38,12 @@ async function up() {
       email: "andypar28@hotmail.com",
       password: "Perritos123!!",
       username: "andypar28",
+      password: hashedPassword,
       telephone: "1564078964",
       personType: "000000000000000000000000", //f
+      products: [],
       cuilCuit: "27-34401328-1",
+      isActive: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -51,9 +59,12 @@ async function up() {
       email: "andypar30@hotmail.com",
       password: "Perritos123!!",
       username: "andypar30",
+      password: hashedPassword,
       telephone: "1564078964",
       personType: "000000000000000000000000", //f
+      products: [],
       cuilCuit: "27-34401330-1",
+      isActive: false,
       createdAt: new Date(),
       updatedAt: new Date(),
     },
