@@ -230,7 +230,6 @@ async function inactivateUser(req, res, next) {
 }
 
 async function associateProductToUser(req, res, next) {
-  console.log("updateProduct with id: ", req.params.productid);
   console.log("updateUser with id: ", req.params.userid);
 
 
@@ -270,7 +269,6 @@ async function associateProductToUser(req, res, next) {
 
 
 async function desassociateProductToUser(req, res, next) {
-  console.log("updateProduct with id: ", req.params.productid);
   console.log("updateUser with id: ", req.params.userid);
 
 
@@ -298,15 +296,7 @@ async function desassociateProductToUser(req, res, next) {
       return
     }
 
-    console.log(product);
-    console.log(user);
     user.products.pull(product);
-    console.log(user);
-    console.log(product);
-
-
-    //user.updateOne({ _id: req.params.userid }, { $pull: { products: product } })
-
 
     await user.save();
     res.send(user);
