@@ -11,6 +11,10 @@ router.get("/:id", getUserById);
 router.post("/", createUserValidator, createUser);
 router.put("/:id", updateUserValidator, updateUser);
 router.delete("/:id", deleteUser);
+router.put("/inactivate/:id", inactivateUser);
+router.put("/associate/:userid/:productid", associateProductToUser);
+router.put("/desassociate/:userid/:productid", desassociateProductToUser);
+
 
 async function getAllUsers(req, res, next) {
   try {
@@ -26,6 +30,7 @@ async function getUserById(req, res, next) {
 
   if (!req.params.id) {
     res.status(400).send("The param id is not defined");
+    return
   }
 
   try {
@@ -33,6 +38,7 @@ async function getUserById(req, res, next) {
 
     if (!user) {
       res.status(404).send("user not found");
+      return
     }
     res.send(user);
   } catch (err) {
@@ -51,6 +57,7 @@ async function createUser(req, res, next) {
     });
     if (!gender) {
       res.status(404).send("GenderType not found");
+      return
     }
 
     const personType = await models.PersonType.findOne({
@@ -58,16 +65,21 @@ async function createUser(req, res, next) {
     });
     if (!personType) {
       res.status(404).send("personType not found");
+      return
     }
 
     if (await validateExistingEmail(user)) {
       res.status(400).send("El email ya se encuentra registrado");
+      return
     } else if (await validateExistingUsername(user)) {
       res.status(400).send("El usuario ya se encuentra registrado");
+      return
     } else if (await validateExistingDNI(user)) {
       res.status(400).send("El numero de DNI ya se encuentra registrado");
+      return
     } else if (await validateExistingCUILCUIT(user)) {
       res.status(400).send("El numero de CUIT/CUIL ya se encuentra registrado");
+      return
     } else {
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(user.password, saltRounds);
@@ -100,6 +112,7 @@ async function updateUser(req, res, next) {
 
   if (!req.params.id) {
     res.status(400).send("The param id is not defined");
+    return
   }
 
   const user = req.body;
@@ -108,6 +121,7 @@ async function updateUser(req, res, next) {
     const userToUpdate = await models.User.findById(req.params.id);
     if (!userToUpdate) {
       res.status(404).send("user not found");
+      return
     }
 
     const gender = await models.GenderType.findOne({
@@ -115,6 +129,7 @@ async function updateUser(req, res, next) {
     });
     if (!gender) {
       res.status(404).send("GenderType not found");
+      return
     }
 
     const personType = await models.PersonType.findOne({
@@ -122,6 +137,7 @@ async function updateUser(req, res, next) {
     });
     if (!personType) {
       res.status(404).send("personType not found");
+      return
     }
 
     try {
@@ -131,6 +147,7 @@ async function updateUser(req, res, next) {
         useremail.id != userToUpdate.id
       ) {
         res.status(400).send("El email ya se encuentra registrado");
+        return
       } else {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(user.password, saltRounds);
@@ -160,6 +177,7 @@ async function deleteUser(req, res, next) {
 
   if (!req.params.id) {
     res.status(400).send("The param id is not defined");
+    return
   }
 
   try {
@@ -167,10 +185,132 @@ async function deleteUser(req, res, next) {
 
     if (!userToDelete) {
       res.status(404).send("user not found");
+      return
     }
 
     await models.User.deleteOne({ _id: userToDelete._id });
     res.send(`User deleted :  ${req.params.id}`);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function inactivateUser(req, res, next) {
+  console.log("inactivateUser with id: ", req.params.id);
+
+  if (!req.params.id) {
+    res.status(400).send("The param id is not defined");
+    return
+  }
+
+  try {
+    const userToInactivate = await models.User.findById(req.params.id);
+    if (!userToInactivate) {
+      res.status(404).send("user not found");
+      return
+      return;
+    }
+    if (!userToInactivate.isActive){
+      res.status(404).send("user is already inactive");
+      return
+    }
+
+    userToInactivate.dni = userToInactivate.dni + "-INACTIVE";
+    userToInactivate.cuilCuit = userToInactivate.cuilCuit + "-INACTIVE";
+    userToInactivate.username = userToInactivate.username + "-INACTIVE";
+    userToInactivate.email = userToInactivate.email + "-INACTIVE";
+    userToInactivate.isActive = false;
+    userToInactivate.updatedAt = new Date();
+
+    await userToInactivate.save();
+    res.send(userToInactivate);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function associateProductToUser(req, res, next) {
+  console.log("updateProduct with id: ", req.params.productid);
+  console.log("updateUser with id: ", req.params.userid);
+
+
+  if (!req.params.productid) {
+    res.status(400).send("The param productid is not defined");
+    return
+  }
+
+  if (!req.params.userid) {
+    res.status(400).send("The param userid is not defined");
+    return
+  }
+
+  try {
+    const product = await models.Product.findById(req.params.productid);
+    if (!product) {
+      res.status(404).send("product not found");
+      return
+    }
+
+
+    const user = await models.User.findById(req.params.userid);
+    if (!user) {
+      res.status(404).send("user not found");
+      return
+    }
+
+    user.products.push(product);
+
+    await user.save();
+    res.send(user);
+
+  } catch (err) {
+    next(err);
+  }
+}
+
+
+async function desassociateProductToUser(req, res, next) {
+  console.log("updateProduct with id: ", req.params.productid);
+  console.log("updateUser with id: ", req.params.userid);
+
+
+  if (!req.params.productid) {
+    res.status(400).send("The param productid is not defined");
+    return
+  }
+
+  if (!req.params.userid) {
+    res.status(400).send("The param userid is not defined");
+    return
+  }
+
+  try {
+    const product = await models.Product.findById(req.params.productid);
+    if (!product) {
+      res.status(404).send("product not found");
+      return
+    }
+
+
+    const user = await models.User.findById(req.params.userid);
+    if (!user) {
+      res.status(404).send("user not found");
+      return
+    }
+
+    console.log(product);
+    console.log(user);
+    user.products.pull(product);
+    console.log(user);
+    console.log(product);
+
+
+    //user.updateOne({ _id: req.params.userid }, { $pull: { products: product } })
+
+
+    await user.save();
+    res.send(user);
+
   } catch (err) {
     next(err);
   }

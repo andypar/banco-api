@@ -5,9 +5,9 @@ const { ObjectId } = Schema.Types;
 
 const productSchema = new Schema({
     type: { type: ObjectId, ref: "ProductType", required: true },
-    accountNumber: { type: String, required: true, unique: true },
-    cbu: { type: String, required: true, unique: true },
-    alias: { type: String, required: true, unique: true },      
+    accountNumber: { type: String, required: true, unique: true, sparse: true },
+    cbu: { type: String, required: true, unique: true, sparse: true },
+    alias: { type: String, required: true, unique: true, sparse: true },      
     balanceAmount: { type: Number, required: true },
     overdraftAmount: { type: Number, required: true },
     extractionLimit: { type: Number, required: true },

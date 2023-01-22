@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 const { ObjectId } = Schema.Types;
+const Product  = require("./product");
 // const emailValidator = validate({ validator: "isEmail" });
 
 const userSchema = new Schema({
@@ -11,7 +12,7 @@ const userSchema = new Schema({
     lastName: { type: String },
   },
   gender: { type: ObjectId, ref: "Gender", required: true },
-  dni: { type: Number, required: true, unique: true },
+  dni: { type: String, required: true, unique: true },
   dateBirth: { type: Date, required: true },
   email: {
     type: String,
@@ -25,7 +26,8 @@ const userSchema = new Schema({
   password: { type: String, select: false },
   telephone: { type: String },
   personType: { type: ObjectId, ref: "PersonType", required: true },
-  products: { type: ObjectId, ref: 'Products'},
+  //products: { type: ObjectId, ref: 'Products'},
+  products: [Product],
   cuilCuit: { type: String, required: true, unique: true },
   isActive: { type: Boolean },
   createdAt: { type: Date, required: true },

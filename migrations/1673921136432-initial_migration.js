@@ -9,7 +9,7 @@ async function up() {
       description: "m",
     },
     {
-      description: "i",
+      description: "x",
     },
   ])
 
@@ -55,7 +55,7 @@ async function up() {
 
 async function down() {
   await models.GenderType.deleteMany({
-    description: ["f", "m", "i"],
+    description: ["f", "m", "x"],
   });
 
   await models.CurrencyType.deleteMany({

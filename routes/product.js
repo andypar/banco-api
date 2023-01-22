@@ -25,6 +25,7 @@ async function getProductById(req, res, next) {
 
   if (!req.params.id) {
     res.status(400).send("The param id is not defined");
+    return
   }
 
   try {
@@ -32,6 +33,7 @@ async function getProductById(req, res, next) {
 
     if (!product) {
       res.status(404).send("product not found");
+      return
     }
     res.send(product);
   } catch (err) {
@@ -50,6 +52,7 @@ async function createProduct(req, res, next) {
     });
     if (!producttype) {
       res.status(404).send("ProductType not found");
+      return
     }
 
     const currencytype = await models.CurrencyType.findOne({
@@ -57,18 +60,24 @@ async function createProduct(req, res, next) {
     });
     if (!currencytype) {
       res.status(404).send("CurrencyType not found");
+      return
     }
 
-    
     if (await validateExistingAlias(product)) {
       res.status(400).send("El alias ya se encuentra registrado");
+      return
     } else {
       const cbuNumber = generate(22);
       const newProduct = new models.Product({
         type: producttype._id,
-        accountNumber: cbuNumber.substring(3,7)+'/'+cbuNumber.substring(7,19)+'/'+cbuNumber.substring(19,21),
+        accountNumber:
+          cbuNumber.substring(3, 7) +
+          "/" +
+          cbuNumber.substring(7, 19) +
+          "/" +
+          cbuNumber.substring(19, 21),
         cbu: cbuNumber,
-        alias: makealias(5)+'.'+makealias(5)+'.'+makealias(5),
+        alias: makealias(5) + "." + makealias(5) + "." + makealias(5),
         balanceAmount: generate(5),
         overdraftAmount: generate(4),
         extractionLimit: generate(4),
@@ -89,6 +98,7 @@ async function updateProduct(req, res, next) {
 
   if (!req.params.id) {
     res.status(400).send("The param id is not defined");
+    return
   }
 
   const product = req.body;
@@ -97,6 +107,7 @@ async function updateProduct(req, res, next) {
     const productToUpdate = await models.Product.findById(req.params.id);
     if (!productToUpdate) {
       res.status(404).send("product not found");
+      return
     }
 
     const producttype = await models.ProductType.findOne({
@@ -104,6 +115,7 @@ async function updateProduct(req, res, next) {
     });
     if (!producttype) {
       res.status(404).send("ProductType not found");
+      return
     }
 
     const currencytype = await models.CurrencyType.findOne({
@@ -111,25 +123,21 @@ async function updateProduct(req, res, next) {
     });
     if (!currencytype) {
       res.status(404).send("CurrencyType not found");
+      return
     }
 
     try {
-      const productalias = await models.Product.findOne({ alias: product.alias });
+      const productalias = await models.Product.findOne({
+        alias: product.alias,
+      });
       if (
-        await validateExistingAlias(product) &&
+        (await validateExistingAlias(product)) &&
         productalias.id != productToUpdate.id
       ) {
         res.status(400).send("El alias ya se encuentra registrado");
+        return
       } else {
-
-        //productToUpdate.type = producttype;
-        //productToUpdate.accountNumber = product.accountNumber;
-        //productToUpdate.cbu = product.cbu;
         productToUpdate.alias = product.alias;
-        //productToUpdate.balanceAmount = product.balanceAmount;
-        //productToUpdate.overdraftAmount = product.overdraftAmount;
-        //productToUpdate.extractionLimit = product.extractionLimit;
-        //productToUpdate.currency = currencytype;
         productToUpdate.updatedAt = new Date();
 
         await productToUpdate.save();
@@ -148,6 +156,7 @@ async function deleteProduct(req, res, next) {
 
   if (!req.params.id) {
     res.status(400).send("The param id is not defined");
+    return
   }
 
   try {
@@ -155,6 +164,7 @@ async function deleteProduct(req, res, next) {
 
     if (!productToDelete) {
       res.status(404).send("product not found");
+      return
     }
 
     await models.Product.deleteOne({ _id: productToDelete._id });
@@ -163,7 +173,6 @@ async function deleteProduct(req, res, next) {
     next(err);
   }
 }
-
 
 async function validateExistingAlias(product) {
   try {
@@ -187,22 +196,20 @@ function generate(n) {
   }
 
   max = Math.pow(10, n + add);
-  var min = max / 10; // Math.pow(10, n) basically 
+  var min = max / 10; // Math.pow(10, n) basically
   var number = Math.floor(Math.random() * (max - min + 1)) + min;
 
   return ("" + number).substring(add);
 }
 
-
 function makealias(length) {
-  var result           = '';
-  var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  var result = "";
+  var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   var charactersLength = characters.length;
-  for ( var i = 0; i < length; i++ ) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
 }
-
 
 module.exports = router;

@@ -13,11 +13,6 @@ createUserValidator = async (req, res, next) => {
     req.check("dni", "El DNI debe tener como mínimo 7 carácteres").isLength({
       min: 7,
     });
-    // req.checkBody('dni', "El numero de DNI ya se encuentra registrado").custom(async(value) => {
-    //     if (validateExistingDNI(value)){
-    //         return false
-    //     } return true
-    // });
   
     // Date Birth
     req.checkBody("dateBirth", "Fecha de Nacimiento Inválida").custom((value) => {
@@ -33,24 +28,13 @@ createUserValidator = async (req, res, next) => {
     req.check("email", "El correo debe tener como mínimo 5 carácteres").isLength({
       min: 5,
     });
-    // req.checkBody('email', "El email ya se encuentra registrado").custom(async(value) => {
-    //     if (validateExistingEmail(value)){
-    //         console.log(await validateExistingEmail(value))
-    //         return false
-    //     } return true
-    // });
   
     // Username
     req.check("username", "El usuario no puede estar vacío").notEmpty();
     req.check("username", "El usuario debe como mínimo 5 carácteres").isLength({
       min: 5,
     });
-    // req.checkBody('username', "El usuario ya se encuentra registrado").custom(async(value) => {
-    //     if (validateExistingUsername(value)){
-    //         return false
-    //     } return true
-    // });
-  
+
     // Password
     req.check("password", "La contraseña no puede estar vacío").notEmpty();
     req
@@ -70,14 +54,6 @@ createUserValidator = async (req, res, next) => {
       .isLength({
         min: 10,
       });
-    // await req.checkBody('cuilCuit', "El numero de CUIT/CUIL ya se encuentra registrado").custom(async(value) => {
-    //   console.log("ssssssssss")
-    //   if (await validateExistingCUILCUIT(value)){
-    //     console.log("d")
-    //         return Promise.reject()
-    //     }
-    //     return Promise.resolve()
-    // });
   
     // check for errors
     const errors = await req.validationErrors();
@@ -90,7 +66,9 @@ createUserValidator = async (req, res, next) => {
     next();
   };
   
+
   updateUserValidator = async (req, res, next) => {
+    
     // First Name
     req.check("name.firstName", "El nombre no puede estar vacío").notEmpty();
   
@@ -111,12 +89,6 @@ createUserValidator = async (req, res, next) => {
     req.check("email", "El correo debe tener como mínimo 5 carácteres").isLength({
       min: 5,
     });
-    // req.checkBody('email', "El email ya se encuentra registrado").custom(async(value) => {
-    //     if (validateExistingEmail(value)){
-    //         console.log(await validateExistingEmail(value))
-    //         return false
-    //     } return true
-    // });
   
     // Password
     req.check("password", "La contraseña no puede estar vacío").notEmpty();
@@ -149,62 +121,6 @@ createUserValidator = async (req, res, next) => {
     var dNum = d.getTime();
     if (!dNum && dNum !== 0) return false; // NaN value, Invalid date
     return d.toISOString().slice(0, 10) === dateString;
-  }
-  
-  async function validateExistingEmail(user) {
-    try {
-      const useremail = await models.User.findOne({ email: user.email });
-      if (useremail) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (err) {
-      next(err);
-    }
-  }
-  
-  async function validateExistingUsername(user) {
-    try {
-      const userusername = await models.User.findOne({ username: user.username });
-      if (userusername) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (err) {
-      next(err);
-    }
-  }
-  
-  async function validateExistingDNI(user) {
-    try {
-      const userdni = await models.User.findOne({ dni: user.dni });
-      if (userdni) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (err) {
-      next(err);
-    }
-  }
-  
-  async function validateExistingCUILCUIT(user) {
-    try {
-      const usercuilCuit = await models.User.findOne({ cuilCuit: user });
-      console.log(user);
-      console.log(usercuilCuit);
-      if (usercuilCuit) {
-        console.log("t");
-        return Promise.resolve();
-      } else {
-        console.log("f");
-        return Promise.reject();
-      }
-    } catch (err) {
-      next(err);
-    }
   }
   
   module.exports = {createUserValidator, updateUserValidator};
