@@ -8,8 +8,8 @@ const bcrypt = require("bcrypt");
 /* GET users listing. */
 router.get("/", getAllUsers);
 router.get("/:id", getUserById);
-router.post("/", validator.createUserValidator, createUser);
-router.put("/:id", validator.updateUserValidator, updateUser);
+router.post("/", createUserValidator, createUser);
+router.put("/:id", updateUserValidator, updateUser);
 router.delete("/:id", deleteUser);
 
 async function getAllUsers(req, res, next) {

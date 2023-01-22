@@ -8,7 +8,7 @@ const validator = require("../validator");
 router.get("/", getAllProducts);
 router.get("/:id", getProductById);
 router.post("/", createProduct);
-router.put("/:id", validator.updateProductValidator, updateProduct);
+router.put("/:id", updateProductValidator, updateProduct);
 router.delete("/:id", deleteProduct);
 
 async function getAllProducts(req, res, next) {
