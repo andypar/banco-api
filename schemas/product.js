@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 const { ObjectId } = Schema.Types;
+const Movement  = require("./movement");
 
 const productSchema = new Schema({
     type: { type: ObjectId, ref: "ProductType", required: true },
@@ -12,7 +13,7 @@ const productSchema = new Schema({
     overdraftAmount: { type: Number, required: true },
     extractionLimit: { type: Number, required: true },
     currency: { type: ObjectId, ref: "CurrencyType", required: true },    
-    movements: { type: ObjectId, ref: "Movement" },
+    movements: [Movement],
     createdAt: { type: Date, required: true },
     updatedAt: { type: Date, required: true },
 });
