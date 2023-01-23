@@ -2,7 +2,7 @@ const express = require("express");
 const { models } = require("../db");
 const router = express.Router();
 const mongoose = require("mongoose");
-const validator = require("../validator");
+const validator = require("../validator"); 
 
 /* GET movements listing. */
 router.get("/", getAllMovements);
@@ -138,7 +138,7 @@ async function createDepositMovement(req, res, next) {
   
 
 async function deleteMovement(req, res, next) {
-  console.log("deleteProduct with id: ", req.params.id);
+  console.log("deleteMovement with id: ", req.params.id);
 
   if (!req.params.id) {
     res.status(400).send("The param id is not defined");
@@ -146,15 +146,24 @@ async function deleteMovement(req, res, next) {
   }
 
   try {
-    const productToDelete = await models.Movement.findById(req.params.id);
-
-    if (!productToDelete) {
+    const movementToDelete = await models.Movement.findById(req.params.id);
+    if (!movementToDelete) {
       res.status(404).send("movement not found");
       return;
     }
 
-    await models.Movement.deleteOne({ _id: productToDelete._id });
-    res.send(`Product deleted :  ${req.params.id}`);
+    if(movementToDelete.type==="000000000000000000000002"){
+      movementToDelete.product.totalBalance = movementToDelete.product.totalBalance+Number(movementToDelete.balance);
+      movementToDelete.save();
+    } 
+    if(movementToDelete.type==="000000000000000000000001"){
+      movementToDelete.product.totalBalance = movementToDelete.product.totalBalance-movementToDelete.balance;
+      movementToDelete.save();
+    } 
+
+
+    await models.Movement.deleteOne({ _id: movementToDelete._id });
+    res.send(`Movement deleted :  ${req.params.id}`);
   } catch (err) {
     next(err);
   }
