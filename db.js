@@ -17,6 +17,7 @@ models.PersonType = mongoose.model("PersonType", schemas.personType);
 models.CurrencyType = mongoose.model("CurrencyType", schemas.currencyType);
 models.ProductType = mongoose.model("ProductType", schemas.productType);
 models.MovementType = mongoose.model("MovementType", schemas.movementType);
+models.RoleType = mongoose.model("RoleType", schemas.roleType);
 models.Product = mongoose.model("Product", schemas.product);
 models.Movement = mongoose.model("Movement", schemas.movement);
 models.User = mongoose.model("User", schemas.user);

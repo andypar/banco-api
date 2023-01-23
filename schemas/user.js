@@ -30,6 +30,7 @@ const userSchema = new Schema({
   products: [{ type: ObjectId, ref: 'Product'}],
   cuilCuit: { type: String, required: true, unique: true },
   isActive: { type: Boolean },
+  role: { type: ObjectId, ref: "RoleType", required: true },
   createdAt: { type: Date, required: true },
   updatedAt: { type: Date, required: true },
 });

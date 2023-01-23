@@ -78,6 +78,7 @@ async function createExtractionMovement(req, res, next) {
     newMovement.save()
 
     product.balanceAmount=product.balanceAmount-movement.balance
+    product.movements.push(newMovement);
     product.save()
     res.send(newMovement);
 
@@ -125,6 +126,7 @@ async function createDepositMovement(req, res, next) {
       newMovement.save()
   
       product.balanceAmount=product.balanceAmount+Number(movement.balance)
+      product.movements.push(newMovement);
       product.save()
 
       res.send(newMovement);

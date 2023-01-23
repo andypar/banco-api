@@ -67,6 +67,21 @@ async function up() {
       description: "j",
     },
   ])
+
+  await models.RoleType.create([
+    {
+      _id: new mongoose.Types.ObjectId('000000000000000000000000'),
+      description: "admin",
+    },
+    {
+      _id: new mongoose.Types.ObjectId('000000000000000000000001'),
+      description: "employee",
+    },
+    {
+      _id: new mongoose.Types.ObjectId('000000000000000000000002'),
+      description: "user",
+    },
+  ])
 }
 
 async function down() {
@@ -88,6 +103,10 @@ async function down() {
 
   await models.PersonType.deleteMany({
     _id: ['000000000000000000000000','000000000000000000000001'],
+  });
+
+  await models.RoleType.deleteMany({
+    _id: ['000000000000000000000000','000000000000000000000001','000000000000000000000002'],
   });
 }
 
