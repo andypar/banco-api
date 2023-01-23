@@ -13,7 +13,8 @@ const productSchema = new Schema({
     overdraftAmount: { type: Number, required: true },
     extractionLimit: { type: Number, required: true },
     currency: { type: ObjectId, ref: "CurrencyType", required: true },    
-    movements: [Movement],
+    //movements: [Movement],
+    movements: [{ type: ObjectId, ref: 'Movement'}],
     createdAt: { type: Date, required: true },
     updatedAt: { type: Date, required: true },
 });

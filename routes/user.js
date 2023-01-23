@@ -18,7 +18,7 @@ router.put("/desassociate/:userid/:productid", desassociateProductToUser);
 
 async function getAllUsers(req, res, next) {
   try {
-    const users = await models.User.find({ isActive: true });
+    const users = await models.User.find({ isActive: true }).populate('products').populate('gender').populate('personType');
     res.send(users);
   } catch (err) {
     next(err);
@@ -34,7 +34,7 @@ async function getUserById(req, res, next) {
   }
 
   try {
-    const user = await models.User.findById(req.params.id);
+    const user = await models.User.findById(req.params.id).populate('products').populate('gender').populate('personType');
 
     if (!user) {
       res.status(404).send("user not found");

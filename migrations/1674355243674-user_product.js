@@ -64,7 +64,7 @@ async function up() {
       personType: "000000000000000000000000", //f
       products: [],
       cuilCuit: "27-34401330-1",
-      isActive: false,
+      isActive: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     },

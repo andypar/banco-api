@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const indexRouter = require("./routes/index");
 const userRouter = require("./routes/user");
 const productRouter = require("./routes/product");
+const movementRouter = require("./routes/movement");
 const expressValidator = require("express-validator");
 
 const db = require("./db");
@@ -19,5 +20,6 @@ app.use(expressValidator());
 app.use("/", indexRouter);
 app.use("/user", userRouter);
 app.use("/product", productRouter);
+app.use("/movement", movementRouter);
 
 module.exports = app;

@@ -4,7 +4,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const validator = require("../validator");
 
-/* GET users listing. */
+/* GET products listing. */
 router.get("/", getAllProducts);
 router.get("/:id", getProductById);
 router.post("/", createProduct);
@@ -13,7 +13,7 @@ router.delete("/:id", deleteProduct);
 
 async function getAllProducts(req, res, next) {
   try {
-    const products = await models.Product.find();
+    const products = await models.Product.find().populate('movements').populate('currency').populate('type');
     res.send(products);
   } catch (err) {
     next(err);
@@ -29,7 +29,7 @@ async function getProductById(req, res, next) {
   }
 
   try {
-    const product = await models.Product.findById(req.params.id);
+    const product = await models.Product.findById(req.params.id).populate('movements').populate('currency').populate('type');;
 
     if (!product) {
       res.status(404).send("product not found");
@@ -78,7 +78,8 @@ async function createProduct(req, res, next) {
           cbuNumber.substring(19, 21),
         cbu: cbuNumber,
         alias: makealias(5) + "." + makealias(5) + "." + makealias(5),
-        balanceAmount: generate(5),
+        //balanceAmount: generate(5),
+        balanceAmount: 0,
         overdraftAmount: generate(4),
         extractionLimit: generate(4),
         currency: currencytype._id,

@@ -8,6 +8,7 @@ const movementSchema = new Schema({
   accountTo: { type: ObjectId, ref: "Product" },
   balance: { type: Number, required: true },
   totalBalance: { type: Number, required: true },
+  type: { type: ObjectId, ref: "MovementType", required: true },
   description: { type: String, required: true },
   createdAt: { type: Date, required: true },
   updatedAt: { type: Date, required: true },
