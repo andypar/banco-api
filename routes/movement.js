@@ -7,8 +7,8 @@ const validator = require("../validator");
 /* GET movements listing. */
 router.get("/", getAllMovements);
 router.get("/:id", getMovementById);
-router.post("/extraction/:productfromid", createExtractionMovement);
-router.post("/deposit/:producttoid", createDepositMovement);
+router.post("/extraction/:productfromid", movementValidator, createExtractionMovement);
+router.post("/deposit/:producttoid", movementValidator, createDepositMovement);
 router.delete("/:id", deleteMovement);
 
 async function getAllMovements(req, res, next) {
