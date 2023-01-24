@@ -3,10 +3,12 @@ const { models } = require("../db");
 const router = express.Router();
 const mongoose = require("mongoose");
 const validator = require("../validator"); 
+const { ObjectId } = require("mongodb");
 
 /* GET movements listing. */
 router.get("/", getAllMovements);
 router.get("/today", getMovementsToday);
+router.get("/amountstoday", getAmountsToday);
 router.get("/:id", getMovementById);
 router.post("/extraction/:productfromid", movementValidator, createExtractionMovement);
 router.post("/deposit/:producttoid", movementValidator, createDepositMovement);
@@ -59,7 +61,7 @@ async function createExtractionMovement(req, res, next) {
     }
 
     const movementtype = await models.MovementType.findOne({
-        description: movement.type,
+      description: movement.type,
       });
       if (!movementtype) {
         res.status(404).send("MovementType not found");
@@ -71,7 +73,7 @@ async function createExtractionMovement(req, res, next) {
       balance: movement.balance,
       totalBalance: product.balanceAmount-movement.balance,
       type: movementtype,
-      description: movement.description,
+      descriptionMovement: movement.descriptionMovement,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -102,7 +104,7 @@ async function createDepositMovement(req, res, next) {
       } 
   
       const movementtype = await models.MovementType.findOne({
-          description: movement.type,
+        description: movement.type,
         });
         if (!movementtype) {
           res.status(404).send("MovementType not found");
@@ -114,7 +116,7 @@ async function createDepositMovement(req, res, next) {
         balance: movement.balance,
         totalBalance: product.balanceAmount+Number(movement.balance),
         type: movementtype,
-        description: movement.description,
+        descriptionMovement: movement.descriptionMovement,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -186,43 +188,26 @@ async function deleteMovement(req, res, next) {
 //console.log(filterByExpiration(products))
 
 async function getMovementsToday(req, res, next) {
+  try {
+    const today = new Date(new Date().setHours(-3,0,0,0));
+    const products = await models.Movement
+    .find({createdAt: {$gte: today}, type:ObjectId("000000000000000000000002")})
+    //.populate({ path:"type", model: 'MovementType', match:{description: {$eq: "deposito"}}})
+    .populate({ path:"type", model: 'MovementType'})
+    .select("createdAt balance descriptionMovement");
+    res.send(products);
+  } catch (err) {
+    next(err);
+  }
+}
+
+
+async function getAmountsToday(req, res, next) {
   
   try {
     const today = new Date(new Date().setHours(-3,0,0,0));
-    // const products = await models.Movement
-    // .find({createdAt: {$gte: today}})
-    // .populate('type',{match:{"description":"extraccion"}})
-    // .select("createdAt balance");
-
-    // const products = await models.Movement.aggregate([
-    //   { $match: { createdAt: {$gte: today} } },
-    //   { $group: { _id: "type", balance: { $sum: "$balance" } } }
-    // ]);
-
-    // const products = await models.Movement.aggregate([
-    //   {
-    //     $group: {
-    //       _id: "$type",
-    //       count: {
-    //         $sum: "$balance"
-    //       }
-    //     }
-    //   }
-    // ])
-    console.log(today)
-    console.log(new Date())
-    // const products = await models.Movement.aggregate([
-
-    //   { $match: { createdAt: {$gte: today} } },
-    //   {
-    //     $group: {
-    //       _id: "$type",
-    //       count: {
-    //         $sum: "$balance"
-    //       }
-    //     }
-    //   }
-    // ])
+    //console.log(today)
+    //console.log(new Date())
 
     const products = await models.Movement.aggregate([
 
@@ -230,7 +215,7 @@ async function getMovementsToday(req, res, next) {
         $and:[ 
           {createdAt: {$gte: today}}, 
           // {description: {$in: ["ingreso plata"]}},
-          {type: {$in: ["000000000000000000000001"]}}
+          {type: {$in: [ObjectId("000000000000000000000002")]}}
         ] } },
       {
         $group: {
