@@ -6,6 +6,8 @@ updateProductValidator = async (req, res, next) => {
     req.check("alias", "El alias debe tener como mínimo 5 carácteres").isLength({
       min: 5,
     });
+
+    
   
     // check for errors
     const errors = await req.validationErrors();

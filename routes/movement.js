@@ -6,6 +6,7 @@ const validator = require("../validator");
 
 /* GET movements listing. */
 router.get("/", getAllMovements);
+router.get("/today", getMovementsToday);
 router.get("/:id", getMovementById);
 router.post("/extraction/:productfromid", movementValidator, createExtractionMovement);
 router.post("/deposit/:producttoid", movementValidator, createDepositMovement);
@@ -99,11 +100,6 @@ async function createDepositMovement(req, res, next) {
         res.status(404).send("Product not found");
         return;
       } 
-      console.log(product)
-    //   if (product.totalBalance < movement.balance){
-    //       res.status(400).send("Balance of the account is lower than the amount to extract");
-    //       return;
-    //   }
   
       const movementtype = await models.MovementType.findOne({
           description: movement.type,
@@ -112,7 +108,6 @@ async function createDepositMovement(req, res, next) {
           res.status(404).send("MovementType not found");
           return
         } 
-        console.log(movementtype)
     
       const newMovement = new models.Movement({
         accountFrom: req.params.producttoid,
@@ -152,18 +147,102 @@ async function deleteMovement(req, res, next) {
       return;
     }
 
-    if(movementToDelete.type==="000000000000000000000002"){
-      movementToDelete.product.totalBalance = movementToDelete.product.totalBalance+Number(movementToDelete.balance);
-      movementToDelete.save();
-    } 
-    if(movementToDelete.type==="000000000000000000000001"){
-      movementToDelete.product.totalBalance = movementToDelete.product.totalBalance-movementToDelete.balance;
-      movementToDelete.save();
-    } 
+    const movementtype = await models.MovementType.findOne({
+      _id: movementToDelete.type,
+    });
+    if (!movementtype) {
+      res.status(404).send("MovementType not found");
+      return
+    }
 
+    const product = await models.Product.findOne({
+      movements: req.params.id,
+    });
+    if (!product) {
+      res.status(404).send("Product not found");
+      return
+    }
+
+    if(movementtype.description==="extraccion"){
+      product.balanceAmount = product.balanceAmount+Number(movementToDelete.balance);
+      console.log(product.balanceAmount)
+      product.save();
+    } 
+    if(movementtype.description==="deposito"){
+      product.balanceAmount = product.balanceAmount-movementToDelete.balance;
+      console.log(product.balanceAmount)
+      product.save();
+    } 
 
     await models.Movement.deleteOne({ _id: movementToDelete._id });
     res.send(`Movement deleted :  ${req.params.id}`);
+    
+  } catch (err) {
+    next(err);
+  }
+}
+
+//const filterByExpiration = arr => arr.filter(({ createdAt }) => new Date(createdAt) >= today);
+//console.log(filterByExpiration(products))
+
+async function getMovementsToday(req, res, next) {
+  
+  try {
+    const today = new Date(new Date().setHours(-3,0,0,0));
+    // const products = await models.Movement
+    // .find({createdAt: {$gte: today}})
+    // .populate('type',{match:{"description":"extraccion"}})
+    // .select("createdAt balance");
+
+    // const products = await models.Movement.aggregate([
+    //   { $match: { createdAt: {$gte: today} } },
+    //   { $group: { _id: "type", balance: { $sum: "$balance" } } }
+    // ]);
+
+    // const products = await models.Movement.aggregate([
+    //   {
+    //     $group: {
+    //       _id: "$type",
+    //       count: {
+    //         $sum: "$balance"
+    //       }
+    //     }
+    //   }
+    // ])
+    console.log(today)
+    console.log(new Date())
+    // const products = await models.Movement.aggregate([
+
+    //   { $match: { createdAt: {$gte: today} } },
+    //   {
+    //     $group: {
+    //       _id: "$type",
+    //       count: {
+    //         $sum: "$balance"
+    //       }
+    //     }
+    //   }
+    // ])
+
+    const products = await models.Movement.aggregate([
+
+      { $match: {
+        $and:[ 
+          {createdAt: {$gte: today}}, 
+          // {description: {$in: ["ingreso plata"]}},
+          {type: {$in: ["000000000000000000000001"]}}
+        ] } },
+      {
+        $group: {
+          _id: "$type",
+          count: {
+            $sum: "$balance"
+          }
+        }
+      }
+    ])
+
+    res.send(products);
   } catch (err) {
     next(err);
   }
