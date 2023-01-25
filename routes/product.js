@@ -13,7 +13,10 @@ router.delete("/:id", deleteProduct);
 
 async function getAllProducts(req, res, next) {
   try {
-    const products = await models.Product.find().populate('movements').populate('currency').populate('type');
+    const products = await models.Product.find()
+      .populate("movements")
+      .populate("currency")
+      .populate("type");
     res.send(products);
   } catch (err) {
     next(err);
@@ -25,15 +28,18 @@ async function getProductById(req, res, next) {
 
   if (!req.params.id) {
     res.status(400).send("The param id is not defined");
-    return
+    return;
   }
 
   try {
-    const product = await models.Product.findById(req.params.id).populate('movements').populate('currency').populate('type');;
+    const product = await models.Product.findById(req.params.id)
+      .populate("movements")
+      .populate("currency")
+      .populate("type");
 
     if (!product) {
       res.status(404).send("product not found");
-      return
+      return;
     }
     res.send(product);
   } catch (err) {
@@ -52,7 +58,7 @@ async function createProduct(req, res, next) {
     });
     if (!producttype) {
       res.status(404).send("ProductType not found");
-      return
+      return;
     }
 
     const currencytype = await models.CurrencyType.findOne({
@@ -60,12 +66,12 @@ async function createProduct(req, res, next) {
     });
     if (!currencytype) {
       res.status(404).send("CurrencyType not found");
-      return
+      return;
     }
 
     if (await validateExistingAlias(product)) {
       res.status(400).send("El alias ya se encuentra registrado");
-      return
+      return;
     } else {
       const cbuNumber = generate(22);
       const newProduct = new models.Product({
@@ -99,7 +105,7 @@ async function updateProduct(req, res, next) {
 
   if (!req.params.id) {
     res.status(400).send("The param id is not defined");
-    return
+    return;
   }
 
   const product = req.body;
@@ -108,7 +114,7 @@ async function updateProduct(req, res, next) {
     const productToUpdate = await models.Product.findById(req.params.id);
     if (!productToUpdate) {
       res.status(404).send("product not found");
-      return
+      return;
     }
 
     const producttype = await models.ProductType.findOne({
@@ -116,7 +122,7 @@ async function updateProduct(req, res, next) {
     });
     if (!producttype) {
       res.status(404).send("ProductType not found");
-      return
+      return;
     }
 
     const currencytype = await models.CurrencyType.findOne({
@@ -124,7 +130,7 @@ async function updateProduct(req, res, next) {
     });
     if (!currencytype) {
       res.status(404).send("CurrencyType not found");
-      return
+      return;
     }
 
     try {
@@ -136,7 +142,7 @@ async function updateProduct(req, res, next) {
         productalias.id != productToUpdate.id
       ) {
         res.status(400).send("El alias ya se encuentra registrado");
-        return
+        return;
       } else {
         productToUpdate.alias = product.alias;
         productToUpdate.updatedAt = new Date();
@@ -157,7 +163,7 @@ async function deleteProduct(req, res, next) {
 
   if (!req.params.id) {
     res.status(400).send("The param id is not defined");
-    return
+    return;
   }
 
   try {
@@ -165,7 +171,7 @@ async function deleteProduct(req, res, next) {
 
     if (!productToDelete) {
       res.status(404).send("product not found");
-      return
+      return;
     }
 
     await models.Product.deleteOne({ _id: productToDelete._id });

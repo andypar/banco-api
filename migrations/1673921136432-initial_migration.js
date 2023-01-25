@@ -34,16 +34,16 @@ async function up() {
   await models.MovementType.create([
     {
       _id: new mongoose.Types.ObjectId('000000000000000000000000'),
-      description: "transferencia",
-    },
-    {
-      _id: new mongoose.Types.ObjectId('000000000000000000000001'),
       description: "deposito",
     },
     {
-      _id: new mongoose.Types.ObjectId('000000000000000000000002'),
+      _id: new mongoose.Types.ObjectId('000000000000000000000001'),
       description: "extraccion",
     },
+    // {
+    //   _id: new mongoose.Types.ObjectId('000000000000000000000002'),
+    //   description: "transferencia",
+    // },
   ])
 
   await models.ProductType.create([
@@ -94,7 +94,7 @@ async function down() {
   });
 
   await models.MovementType.deleteMany({
-    _id: ['000000000000000000000000','000000000000000000000001', '000000000000000000000002'],
+    _id: ['000000000000000000000000','000000000000000000000001'], //'000000000000000000000002'
   });
 
   await models.ProductType.deleteMany({
