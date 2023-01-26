@@ -10,6 +10,8 @@ router.get("/:id", getProductById);
 router.post("/", createProduct);
 router.put("/:id", updateProductValidator, updateProduct);
 router.delete("/:id", deleteProduct);
+router.get("/available/:userid", getUserAvailableProducts);
+
 
 async function getAllProducts(req, res, next) {
   try {
@@ -46,6 +48,78 @@ async function getProductById(req, res, next) {
     next(err);
   }
 }
+
+
+async function getUserAvailableProducts(req, res, next) {
+  console.log("getUserProducts with id: ", req.params.userid);
+
+  if (!req.params.userid) {
+    res.status(400).send("The param user is not defined");
+    return;
+  }
+
+  try {
+
+    const user = await models.User.findById(req.params.userid);
+    if (!user) {
+      res.status(404).send("user not found");
+      return;
+    }
+    
+    userproducts=user.products
+
+    const product = await models.Product.find({ _id: { $in: userproducts } })
+      .select("x")
+      .populate("currency")
+      .populate("type");
+
+    if (!product) {
+      res.status(404).send("product not found");
+      return;
+    }
+
+
+    currentproducts = []
+    product.forEach(element => {
+      currentproducts.push({'type':element.type.description, 'currency':element.currency.description})
+    });
+
+    // ret = []
+    // ret.push({'type':product[0].type.description, 'currency': product[0].currency.description})
+    // ret.push({'type':product[1].type.description, 'currency': product[1].currency.description})
+
+    const types = await models.ProductType.find()
+    const currencies = await models.CurrencyType.find()
+
+    availableproducts = []
+    types.forEach(element => {
+      currencies.forEach(element2 => {
+        availableproducts.push({'type':element.description,'currency':element2.description})
+      })
+    });
+
+    // const types = await models.ProductType.find()
+    // ret2.push(types)
+    // const currencies = await models.CurrencyType.find()
+    // ret2.push(currencies
+  
+    res.send(getDifference(availableproducts,currentproducts));
+
+    
+  } catch (err) {
+    next(err);
+  }
+}
+
+
+function getDifference(array1, array2) {
+  return array1.filter(object1 => {
+    return !array2.some(object2 => {
+      return object1.type === object2.type && object1.currency === object2.currency;
+    });
+  });
+}
+
 
 async function createProduct(req, res, next) {
   console.log("createProduct: ", req.body.accountNumber);

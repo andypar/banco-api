@@ -16,6 +16,8 @@ router.post(
   movementValidator,
   createExtractionMovement
 );
+router.get("/dates/:productid/:from/:to", getProductMovementsDates);
+router.get("/datesamounts/:productid/:from/:to", getProductAmountsDates);
 router.post("/deposit/:producttoid", movementValidator, createDepositMovement);
 router.delete("/:id", deleteMovement);
 
@@ -69,18 +71,46 @@ async function createExtractionMovement(req, res, next) {
       return;
     }
 
-    // CA:
-    // 1) valido que mi saldo sea menor a lo que quier extraer
-    // 2) valido que lo que quiera sacar no supere mi limite de extraccion diario
-    if (product.balanceAmount < movement.balance) {
-      res
-        .status(400)
-        .send("Balance of the account is lower than the amount to extract");
-      return;
-    } else if (await accountExceedsDailyExtractionAmount(product.id)) {
-      res.status(400).send("Extraction limit exceeded");
+    const producttype = await models.ProductType.findOne({
+      _id: product.type,
+    });
+    if (!producttype) {
+      res.status(404).send("ProductType not found");
       return;
     }
+
+    switch(producttype.description){
+      case "ca":
+      // CA:
+      // 1) valido que mi saldo sea menor a lo que quier extraer
+      // 2) valido que lo que quiera sacar no supere mi limite de extraccion diario
+        if (product.balanceAmount < movement.balance) {
+          res
+            .status(400)
+            .send("Balance of the ca account is lower than the amount to extract");
+          return;
+        } else if (await accountExceedsDailyExtractionAmount(product.id)) {
+          res.status(400).send("Extraction limit exceeded");
+          return;
+        }
+        break
+
+      case "cc":
+      // CC:
+      // 1) valido que mi saldo+sobregiro sea menor a lo que quier extraer
+      // 2) valido que lo que quiera sacar no supere mi limite de extraccion diario
+        if ((product.balanceAmount+product.overdraftAmount) < movement.balance) {
+          res
+            .status(400)
+            .send("Balance of the cc account is lower than the amount to extract");
+          return;
+        } else if (await accountExceedsDailyExtractionAmount(product.id)) {
+          res.status(400).send("Extraction limit exceeded");
+          return;
+        }
+        break
+    }
+
 
     const newMovement = new models.Movement({
       accountFrom: req.params.productfromid,
@@ -336,7 +366,71 @@ async function accountExceedsDailyExtractionAmount(productid) {
       return false;
     }
   } catch (err) {
-    console.log(err)
+    next(err);
+  }
+}
+
+
+async function getProductMovementsDates(req, res, next) {
+  try {
+    const startdate = new Date(req.params.from);
+    const enddate = new Date(req.params.to);
+
+    const product = await models.Product.findById(
+      req.params.productid
+    ).populate("movements");
+    if (!product) {
+      res.status(404).send("Product not found");
+      return;
+    }
+
+    const movements = await models.Movement.find({
+      createdAt: { $gte: startdate, $lte: enddate },
+      accountFrom: product._id,
+    })
+      .populate({ path: "type", model: "MovementType" })
+      .select("createdAt balance descriptionMovement");
+    res.send(movements);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getProductAmountsDates(req, res, next) {
+  try {
+    
+    const product = await models.Product.findById(
+      req.params.productid
+    ).populate("movements");
+    if (!product) {
+      res.status(404).send("Product not found");
+      return;
+    }
+
+    const startdate = new Date(req.params.from);
+    const enddate = new Date(req.params.to);
+
+    const movements = await models.Movement.aggregate([
+      {
+        $match: {
+          $and: [
+            { createdAt: { $gte: startdate, $lte: enddate } },
+            { accountFrom: { $eq: product._id } },
+          ],
+        },
+      },
+      {
+        $group: {
+          _id: "$type",
+          count: {
+            $sum: "$balance",
+          },
+        },
+      },
+    ]);
+
+    res.send(movements);
+  } catch (err) {
     next(err);
   }
 }
