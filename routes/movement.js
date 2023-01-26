@@ -22,6 +22,7 @@ router.post("/deposit/:producttoid", movementValidator, createDepositMovement);
 router.delete("/:id", deleteMovement);
 
 async function getAllMovements(req, res, next) {
+  console.log("getAllMovements");
   try {
     const products = await models.Movement.find();
     res.send(products);
@@ -110,7 +111,6 @@ async function createExtractionMovement(req, res, next) {
         }
         break
     }
-
 
     const newMovement = new models.Movement({
       accountFrom: req.params.productfromid,
@@ -226,6 +226,7 @@ async function deleteMovement(req, res, next) {
 //console.log(filterByExpiration(movements))
 
 async function getProductMovementsToday(req, res, next) {
+  console.log("getProductMovementsToday with id: ", req.params.productid);
   try {
     const today = new Date(new Date().setHours(-3, 0, 0, 0));
 
@@ -250,6 +251,7 @@ async function getProductMovementsToday(req, res, next) {
 }
 
 async function getProductAmountsToday(req, res, next) {
+  console.log("getProductAmountsToday with id: ", req.params.productid);
   try {
     const product = await models.Product.findById(
       req.params.productid
@@ -289,6 +291,7 @@ async function getProductAmountsToday(req, res, next) {
 }
 
 async function getTodayProductExtractionAmount(req, res, next) {
+  console.log("getTodayProductExtractionAmount with id: ", req.params.productid);
   try {
     const product = await models.Product.findById(
       req.params.productid
@@ -326,6 +329,7 @@ async function getTodayProductExtractionAmount(req, res, next) {
 }
 
 async function accountExceedsDailyExtractionAmount(productid) {
+  console.log("accountExceedsDailyExtractionAmount with id: ", productid);
   try {
     const product = await models.Product.findById(productid).populate(
       "movements"
@@ -372,6 +376,7 @@ async function accountExceedsDailyExtractionAmount(productid) {
 
 
 async function getProductMovementsDates(req, res, next) {
+  console.log("getProductMovementsDates with id: ", req.params.productid);
   try {
     const startdate = new Date(req.params.from);
     const enddate = new Date(req.params.to);
@@ -397,6 +402,7 @@ async function getProductMovementsDates(req, res, next) {
 }
 
 async function getProductAmountsDates(req, res, next) {
+  console.log("getProductAmountsDates with id: ", req.params.productid);
   try {
     
     const product = await models.Product.findById(

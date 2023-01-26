@@ -14,6 +14,7 @@ router.get("/available/:userid", getUserAvailableProducts);
 
 
 async function getAllProducts(req, res, next) {
+  console.log("getAllProducts");
   try {
     const products = await models.Product.find()
       .populate("movements")
@@ -51,7 +52,7 @@ async function getProductById(req, res, next) {
 
 
 async function getUserAvailableProducts(req, res, next) {
-  console.log("getUserProducts with id: ", req.params.userid);
+  console.log("getUserAvailableProducts with id: ", req.params.userid);
 
   if (!req.params.userid) {
     res.status(400).send("The param user is not defined");
@@ -110,16 +111,6 @@ async function getUserAvailableProducts(req, res, next) {
     next(err);
   }
 }
-
-
-function getDifference(array1, array2) {
-  return array1.filter(object1 => {
-    return !array2.some(object2 => {
-      return object1.type === object2.type && object1.currency === object2.currency;
-    });
-  });
-}
-
 
 async function createProduct(req, res, next) {
   console.log("createProduct: ", req.body.accountNumber);
@@ -291,6 +282,14 @@ function makealias(length) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
+}
+
+function getDifference(array1, array2) {
+  return array1.filter(object1 => {
+    return !array2.some(object2 => {
+      return object1.type === object2.type && object1.currency === object2.currency;
+    });
+  });
 }
 
 module.exports = router;

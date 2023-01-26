@@ -16,6 +16,7 @@ router.put("/associate/:userid/:productid", associateProductToUser);
 router.put("/desassociate/:userid/:productid", desassociateProductToUser);
 
 async function getAllUsers(req, res, next) {
+  console.log("getAllUsers");
   try {
     const users = await models.User.find({ isActive: true, role:"000000000000000000000002" })
       .populate("products")
