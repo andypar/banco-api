@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const { ObjectId } = Schema.Types;
 const Product  = require("./product");
+const bcrypt = require("bcrypt");
 // const emailValidator = validate({ validator: "isEmail" });
 
 const userSchema = new Schema({
@@ -37,5 +38,14 @@ const userSchema = new Schema({
 
 //const User = mongoose.model("User", userSchema);
 
-//module.exports = User;
+userSchema.method('checkPassword', async function checkPassword(potentialPassword) {
+  if (!potentialPassword) {
+    return Promise.reject(new Error('Password is required'))
+  }
+
+  const isMatch = await bcrypt.compare(potentialPassword, this.password)
+
+  return { isOk: isMatch }
+})
+
 module.exports = userSchema;

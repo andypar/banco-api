@@ -8,18 +8,25 @@ const indexRouter = require("./routes/index");
 const userRouter = require("./routes/user");
 const productRouter = require("./routes/product");
 const movementRouter = require("./routes/movement");
+ const authenticationRouter = require("./routes/authentication")
+const { refresh } = require("./routes/authentication")
 const expressValidator = require("express-validator");
+const cookieParser = require("cookie-parser");
 
 const db = require("./db");
+
 
 // middleware
 app.use(morgan("dev"));
 app.use(bodyParser.json());
+app.use(cookieParser())
 //const { check, validationResult } = require('express-validator');
 app.use(expressValidator());
 app.use("/", indexRouter);
-app.use("/user", userRouter);
-app.use("/product", productRouter);
-app.use("/movement", movementRouter);
+app.use("/user", refresh, userRouter);
+app.use("/product", refresh, productRouter);
+app.use("/movement", refresh, movementRouter);
+app.use(authenticationRouter.router);
+
 
 module.exports = app;

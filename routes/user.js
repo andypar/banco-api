@@ -4,6 +4,8 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const validator = require("../validator");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv").config();
 
 /* GET users listing. */
 router.get("/", getAllUsers);
@@ -14,19 +16,24 @@ router.delete("/:id", deleteUser);
 router.put("/inactivate/:id", inactivateUser);
 router.put("/associate/:userid/:productid", associateProductToUser);
 router.put("/desassociate/:userid/:productid", desassociateProductToUser);
+//router.post("/login", signIn);
 
 async function getAllUsers(req, res, next) {
   console.log("getAllUsers");
   try {
-    const users = await models.User.find({ isActive: true, role:"000000000000000000000002" })
+    const users = await models.User.find({
+      isActive: true,
+      role: "000000000000000000000002",
+    })
       .populate("products")
       .populate("gender")
-      .populate("personType")
-      //.populate("role", { match: { description: "user" } });
+      .populate("personType");
+    //.populate("role", { match: { description: "user" } });
     res.send(users);
   } catch (err) {
     next(err);
   }
+  next();
 }
 
 async function getUserById(req, res, next) {
@@ -302,6 +309,52 @@ async function desassociateProductToUser(req, res, next) {
 
     await user.save();
     res.send(user);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function signIn(req, res, next) {
+  console.log(`Creating user token`);
+
+  if (!req.body.username) {
+    res.status(400).send("Missing email parameter");
+  }
+
+  if (!req.body.password) {
+    res.status(404).send("Missing password parameter");
+  }
+
+  try {
+    const user = await models.User.findOne(
+      { username: req.body.username },
+      "+password"
+    );
+
+    if (!user) {
+      res.status(404).send("user not found");
+    }
+
+    console.log("Checking user password");
+    const result = await user.checkPassword(req.body.password);
+
+    delete user.password;
+
+    if (!result.isOk) {
+      res.status(404).send("User password is invalid");
+    }
+
+    const payload = {
+      _id: user._id,
+      username: user.username,
+      role: user.role,
+    };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN * 1000,
+    });
+
+    res.cookie("token", token, { maxAge: process.env.JWT_EXPIRES_IN * 1000 });
+    res.status(201).send({ token: `Bearer ${token}`, user: payload });
   } catch (err) {
     next(err);
   }

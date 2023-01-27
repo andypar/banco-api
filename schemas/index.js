@@ -11,6 +11,7 @@ const productSchema = require("./product");
 const movementSchema = require("./movement");
 const userSchema = require("./user");
 
+
 schemas["genderType"] = genderTypeSchema;
 schemas["currencyType"] = currencyTypeSchema;
 schemas["movementType"] = movementTypeSchema;
