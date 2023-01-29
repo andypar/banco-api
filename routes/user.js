@@ -6,6 +6,7 @@ const validator = require("../validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv").config();
+const logger = require("../logger");
 
 /* GET users listing. */
 router.get("/", getAllUsers);
@@ -20,6 +21,8 @@ router.put("/desassociate/:userid/:productid", desassociateProductToUser);
 
 async function getAllUsers(req, res, next) {
   console.log("getAllUsers");
+  logger.info("getAllUsers");
+
   try {
     const users = await models.User.find({
       isActive: true,
@@ -28,9 +31,11 @@ async function getAllUsers(req, res, next) {
       .populate("products")
       .populate("gender")
       .populate("personType");
+
     //.populate("role", { match: { description: "user" } });
     res.send(users);
   } catch (err) {
+    logger.error("error getAllUsers: ", err);
     next(err);
   }
   next();
@@ -38,9 +43,11 @@ async function getAllUsers(req, res, next) {
 
 async function getUserById(req, res, next) {
   console.log("getUserById with id: ", req.params.id);
+  logger.info("getUserById with id: ", req.params.id);
 
   if (!req.params.id) {
     res.status(400).send("The param id is not defined");
+    logger.warn("The param id is not defined");
     return;
   }
 
@@ -53,16 +60,19 @@ async function getUserById(req, res, next) {
 
     if (!user) {
       res.status(404).send("user not found");
+      logger.warn("User not found");
       return;
     }
     res.send(user);
   } catch (err) {
+    logger.error("error getUserById: ", err);
     next(err);
   }
 }
 
 async function createUser(req, res, next) {
   console.log("createUser: ", req.body.email);
+  logger.info("createUser: ", req.body.email);
 
   const user = req.body;
 
@@ -72,6 +82,7 @@ async function createUser(req, res, next) {
     });
     if (!gender) {
       res.status(404).send("GenderType not found");
+      logger.warn("GenderType not found");
       return;
     }
 
@@ -80,20 +91,34 @@ async function createUser(req, res, next) {
     });
     if (!personType) {
       res.status(404).send("personType not found");
+      logger.warn("personType not found");
+      return;
+    }
+
+    const roleType = await models.RoleType.findOne({
+      description: user.roleType,
+    });
+    if (!roleType) {
+      res.status(404).send("roleType not found");
+      logger.warn("personType not found");
       return;
     }
 
     if (await validateExistingEmail(user)) {
       res.status(400).send("El email ya se encuentra registrado");
+      logger.warn("El email ya se encuentra registrado");
       return;
     } else if (await validateExistingUsername(user)) {
       res.status(400).send("El usuario ya se encuentra registrado");
+      logger.warn("El usuario ya se encuentra registrado");
       return;
     } else if (await validateExistingDNI(user)) {
       res.status(400).send("El numero de DNI ya se encuentra registrado");
+      logger.warn("El numero de DNI ya se encuentra registrado");
       return;
     } else if (await validateExistingCUILCUIT(user)) {
       res.status(400).send("El numero de CUIT/CUIL ya se encuentra registrado");
+      logger.warn("El numero de CUIT/CUIL ya se encuentra registrado");
       return;
     } else {
       const saltRounds = 10;
@@ -111,6 +136,7 @@ async function createUser(req, res, next) {
         personType: personType._id,
         cuilCuit: user.cuilCuit,
         isActive: true,
+        role: roleType._id,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -118,15 +144,18 @@ async function createUser(req, res, next) {
       newUser.save().then(res.send(newUser));
     }
   } catch (err) {
+    logger.error("error createUser: ", err);
     next(err);
   }
 }
 
 async function updateUser(req, res, next) {
   console.log("updateUser with id: ", req.params.id);
+  logger.info("updateUser with id: ", req.params.id);
 
   if (!req.params.id) {
     res.status(400).send("The param id is not defined");
+    logger.warn("The param id is not defined");
     return;
   }
 
@@ -136,6 +165,7 @@ async function updateUser(req, res, next) {
     const userToUpdate = await models.User.findById(req.params.id);
     if (!userToUpdate) {
       res.status(404).send("user not found");
+      logger.warn("user not found");
       return;
     }
 
@@ -144,6 +174,7 @@ async function updateUser(req, res, next) {
     });
     if (!gender) {
       res.status(404).send("GenderType not found");
+      logger.warn("GenderType not found");
       return;
     }
 
@@ -152,6 +183,7 @@ async function updateUser(req, res, next) {
     });
     if (!personType) {
       res.status(404).send("personType not found");
+      logger.warn("personType not found");
       return;
     }
 
@@ -162,15 +194,16 @@ async function updateUser(req, res, next) {
         useremail.id != userToUpdate.id
       ) {
         res.status(400).send("El email ya se encuentra registrado");
+        logger.warn("El email ya se encuentra registrado");
         return;
       } else {
         const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(user.password, saltRounds);
+        //const hashedPassword = await bcrypt.hash(user.password, saltRounds);
 
         userToUpdate.name = user.name;
         userToUpdate.dateBirth = user.dateBirth;
         userToUpdate.email = user.email;
-        userToUpdate.password = hashedPassword;
+        //userToUpdate.password = hashedPassword;
         userToUpdate.telephone = user.telephone;
         userToUpdate.gender = gender;
         userToUpdate.personType = personType;
@@ -180,18 +213,22 @@ async function updateUser(req, res, next) {
         res.send(userToUpdate);
       }
     } catch (err) {
+      logger.error("error updateUser 1: ", err);
       next(err);
     }
   } catch (err) {
+    logger.error("error updateUser 2: ", err);
     next(err);
   }
 }
 
 async function deleteUser(req, res, next) {
   console.log("deleteUser with id: ", req.params.id);
+  logger.info("deleteUser with id: ", req.params.id);
 
   if (!req.params.id) {
     res.status(400).send("The param id is not defined");
+    logger.warn("The param id is not defined");
     return;
   }
 
@@ -200,21 +237,25 @@ async function deleteUser(req, res, next) {
 
     if (!userToDelete) {
       res.status(404).send("user not found");
+      logger.warn("user not found");
       return;
     }
 
     await models.User.deleteOne({ _id: userToDelete._id });
     res.send(`User deleted :  ${req.params.id}`);
   } catch (err) {
+    logger.error("error deleteUser: ", err);
     next(err);
   }
 }
 
 async function inactivateUser(req, res, next) {
   console.log("inactivateUser with id: ", req.params.id);
+  logger.info("inactivateUser with id: ", req.params.id);
 
   if (!req.params.id) {
     res.status(400).send("The param id is not defined");
+    logger.warn("The param id is not defined");
     return;
   }
 
@@ -222,11 +263,12 @@ async function inactivateUser(req, res, next) {
     const userToInactivate = await models.User.findById(req.params.id);
     if (!userToInactivate) {
       res.status(404).send("user not found");
-      return;
+      logger.warn("user not found");
       return;
     }
     if (!userToInactivate.isActive) {
       res.status(404).send("user is already inactive");
+      logger.warn("user is already inactive");
       return;
     }
 
@@ -240,20 +282,24 @@ async function inactivateUser(req, res, next) {
     await userToInactivate.save();
     res.send(userToInactivate);
   } catch (err) {
+    logger.error("error inactivateUser: ", err);
     next(err);
   }
 }
 
 async function associateProductToUser(req, res, next) {
   console.log("updateUser with id: ", req.params.userid);
+  logger.info("updateUser with id: ", req.params.userid);
 
   if (!req.params.productid) {
     res.status(400).send("The param productid is not defined");
+    logger.warn("The param productid is not defined");
     return;
   }
 
   if (!req.params.userid) {
     res.status(400).send("The param userid is not defined");
+    logger.warn("The param userid is not defined");
     return;
   }
 
@@ -261,12 +307,14 @@ async function associateProductToUser(req, res, next) {
     const product = await models.Product.findById(req.params.productid);
     if (!product) {
       res.status(404).send("product not found");
+      logger.warn("product not found");
       return;
     }
 
     const user = await models.User.findById(req.params.userid);
     if (!user) {
       res.status(404).send("user not found");
+      logger.warn("user not found");
       return;
     }
 
@@ -275,20 +323,24 @@ async function associateProductToUser(req, res, next) {
     await user.save();
     res.send(user);
   } catch (err) {
+    logger.error("error associateProductToUser: ", err);
     next(err);
   }
 }
 
 async function desassociateProductToUser(req, res, next) {
   console.log("updateUser with id: ", req.params.userid);
+  logger.info("updateUser with id: ", req.params.userid);
 
   if (!req.params.productid) {
     res.status(400).send("The param productid is not defined");
+    logger.warn("The param productid is not defined");
     return;
   }
 
   if (!req.params.userid) {
     res.status(400).send("The param userid is not defined");
+    logger.warn("The param userid is not defined");
     return;
   }
 
@@ -296,12 +348,14 @@ async function desassociateProductToUser(req, res, next) {
     const product = await models.Product.findById(req.params.productid);
     if (!product) {
       res.status(404).send("product not found");
+      logger.warn("product not found");
       return;
     }
 
     const user = await models.User.findById(req.params.userid);
     if (!user) {
       res.status(404).send("user not found");
+      logger.warn("user not found");
       return;
     }
 
@@ -310,52 +364,7 @@ async function desassociateProductToUser(req, res, next) {
     await user.save();
     res.send(user);
   } catch (err) {
-    next(err);
-  }
-}
-
-async function signIn(req, res, next) {
-  console.log(`Creating user token`);
-
-  if (!req.body.username) {
-    res.status(400).send("Missing email parameter");
-  }
-
-  if (!req.body.password) {
-    res.status(404).send("Missing password parameter");
-  }
-
-  try {
-    const user = await models.User.findOne(
-      { username: req.body.username },
-      "+password"
-    );
-
-    if (!user) {
-      res.status(404).send("user not found");
-    }
-
-    console.log("Checking user password");
-    const result = await user.checkPassword(req.body.password);
-
-    delete user.password;
-
-    if (!result.isOk) {
-      res.status(404).send("User password is invalid");
-    }
-
-    const payload = {
-      _id: user._id,
-      username: user.username,
-      role: user.role,
-    };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN * 1000,
-    });
-
-    res.cookie("token", token, { maxAge: process.env.JWT_EXPIRES_IN * 1000 });
-    res.status(201).send({ token: `Bearer ${token}`, user: payload });
-  } catch (err) {
+    logger.error("error desassociateProductToUser: ", err);
     next(err);
   }
 }
@@ -369,6 +378,7 @@ async function validateExistingEmail(user) {
       return false;
     }
   } catch (err) {
+    logger.error("error validateExistingEmail: ", err);
     next(err);
   }
 }
@@ -382,6 +392,7 @@ async function validateExistingUsername(user) {
       return false;
     }
   } catch (err) {
+    logger.error("error validateExistingUsername: ", err);
     next(err);
   }
 }
@@ -395,6 +406,7 @@ async function validateExistingDNI(user) {
       return false;
     }
   } catch (err) {
+    logger.error("error validateExistingDNI: ", err);
     next(err);
   }
 }
@@ -408,6 +420,7 @@ async function validateExistingCUILCUIT(user) {
       return false;
     }
   } catch (err) {
+    logger.error("error validateExistingCUILCUIT: ", err);
     next(err);
   }
 }

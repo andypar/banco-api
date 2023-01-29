@@ -90,14 +90,14 @@ createUserValidator = async (req, res, next) => {
       min: 5,
     });
   
-    // Password
-    req.check("password", "La contraseña no puede estar vacío").notEmpty();
-    req
-      .check(
-        "password",
-        "La contraseña debe ser una combinación de una mayúscula, una minúscula, un carácter especial, un dígito y un mínimo de 8, un máximo de 20 caracteres de largo"
-      )
-      .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/, "i");
+    // // Password
+    // req.check("password", "La contraseña no puede estar vacía").notEmpty();
+    // req
+    //   .check(
+    //     "password",
+    //     "La contraseña debe ser una combinación de una mayúscula, una minúscula, un carácter especial, un dígito y un mínimo de 8, un máximo de 20 caracteres de largo"
+    //   )
+    //   .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/, "i");
   
     // Telephone
     req.check("telephone", "El teléfono no puede estar vacío").notEmpty();

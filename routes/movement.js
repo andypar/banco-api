@@ -4,6 +4,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const validator = require("../validator");
 const { ObjectId } = require("mongodb");
+const logger = require("../logger");
 
 /* GET movements listing. */
 router.get("/", getAllMovements);
@@ -23,19 +24,23 @@ router.delete("/:id", deleteMovement);
 
 async function getAllMovements(req, res, next) {
   console.log("getAllMovements");
+  logger.info("getAllMovements");
   try {
     const products = await models.Movement.find();
     res.send(products);
   } catch (err) {
+    logger.error("error getAllMovements: ", err);
     next(err);
   }
 }
 
 async function getMovementById(req, res, next) {
   console.log("getMovementById with id: ", req.params.id);
+  logger.info("getMovementById with id: ", req.params.id);
 
   if (!req.params.id) {
     res.status(400).send("The param id is not defined");
+    logger.warn("The param id is not defined");
     return;
   }
 
@@ -44,6 +49,7 @@ async function getMovementById(req, res, next) {
 
     if (!movement) {
       res.status(404).send("movement not found");
+      logger.warn("movement not found");
       return;
     }
     res.send(movement);
@@ -54,6 +60,7 @@ async function getMovementById(req, res, next) {
 
 async function createExtractionMovement(req, res, next) {
   console.log("createExtractionMovement: ", req.body.type);
+  logger.info("createExtractionMovement: ", req.body.type);
 
   const movement = req.body;
 
@@ -61,6 +68,7 @@ async function createExtractionMovement(req, res, next) {
     const product = await models.Product.findById(req.params.productfromid);
     if (!product) {
       res.status(404).send("Product not found");
+      logger.warn("Product not found");
       return;
     }
 
@@ -69,6 +77,7 @@ async function createExtractionMovement(req, res, next) {
     });
     if (!movementtype) {
       res.status(404).send("MovementType not found");
+      logger.warn("MovementType not found");
       return;
     }
 
@@ -77,39 +86,55 @@ async function createExtractionMovement(req, res, next) {
     });
     if (!producttype) {
       res.status(404).send("ProductType not found");
+      logger.warn("ProductType not found");
       return;
     }
 
-    switch(producttype.description){
+    switch (producttype.description) {
       case "ca":
-      // CA:
-      // 1) valido que mi saldo sea menor a lo que quier extraer
-      // 2) valido que lo que quiera sacar no supere mi limite de extraccion diario
+        // CA:
+        // 1) valido que mi saldo sea menor a lo que quier extraer
+        // 2) valido que lo que quiera sacar no supere mi limite de extraccion diario
         if (product.balanceAmount < movement.balance) {
           res
             .status(400)
-            .send("Balance of the ca account is lower than the amount to extract");
+            .send(
+              "Balance of the ca account is lower than the amount to extract"
+            );
+          logger.warn(
+            "Balance of the ca account is lower than the amount to extract"
+          );
           return;
         } else if (await accountExceedsDailyExtractionAmount(product.id)) {
           res.status(400).send("Extraction limit exceeded");
+          logger.warn("Extraction limit exceeded");
           return;
         }
-        break
+        break;
 
       case "cc":
-      // CC:
-      // 1) valido que mi saldo+sobregiro sea menor a lo que quier extraer
-      // 2) valido que lo que quiera sacar no supere mi limite de extraccion diario
-        if ((product.balanceAmount+product.overdraftAmount) < movement.balance) {
+        // CC:
+        // 1) valido que mi saldo+sobregiro sea menor a lo que quier extraer
+        // 2) valido que lo que quiera sacar no supere mi limite de extraccion diario
+        if (
+          product.balanceAmount + product.overdraftAmount <
+          movement.balance
+        ) {
           res
             .status(400)
-            .send("Balance of the cc account is lower than the amount to extract");
+            .send(
+              "Balance of the cc account is lower than the amount to extract"
+            );
+          logger.warn(
+            "Balance of the cc account is lower than the amount to extract"
+          );
           return;
         } else if (await accountExceedsDailyExtractionAmount(product.id)) {
           res.status(400).send("Extraction limit exceeded");
+          logger.warn("Extraction limit exceeded");
           return;
         }
-        break
+        break;
     }
 
     const newMovement = new models.Movement({
@@ -129,12 +154,14 @@ async function createExtractionMovement(req, res, next) {
     product.save();
     res.send(newMovement);
   } catch (err) {
+    logger.error("error createExtractionMovement: ", err);
     next(err);
   }
 }
 
 async function createDepositMovement(req, res, next) {
   console.log("createDepositMovement: ", req.body.type);
+  logger.info("createDepositMovement: ", req.body.type);
 
   const movement = req.body;
 
@@ -142,6 +169,7 @@ async function createDepositMovement(req, res, next) {
     const product = await models.Product.findById(req.params.producttoid);
     if (!product) {
       res.status(404).send("Product not found");
+      logger.warn("Product not found");
       return;
     }
 
@@ -150,6 +178,7 @@ async function createDepositMovement(req, res, next) {
     });
     if (!movementtype) {
       res.status(404).send("MovementType not found");
+      logger.warn("MovementType not found");
       return;
     }
 
@@ -170,15 +199,18 @@ async function createDepositMovement(req, res, next) {
 
     res.send(newMovement);
   } catch (err) {
+    logger.error("error: createDepositMovement: ", err);
     next(err);
   }
 }
 
 async function deleteMovement(req, res, next) {
   console.log("deleteMovement with id: ", req.params.id);
+  logger.info("deleteMovement with id: ", req.params.id);
 
   if (!req.params.id) {
     res.status(400).send("The param id is not defined");
+    logger.warn("The param id is not defined");
     return;
   }
 
@@ -186,6 +218,7 @@ async function deleteMovement(req, res, next) {
     const movementToDelete = await models.Movement.findById(req.params.id);
     if (!movementToDelete) {
       res.status(404).send("movement not found");
+      logger.warn("movement not found");
       return;
     }
 
@@ -194,6 +227,7 @@ async function deleteMovement(req, res, next) {
     });
     if (!movementtype) {
       res.status(404).send("MovementType not found");
+      logger.warn("MovementType not found");
       return;
     }
 
@@ -202,6 +236,7 @@ async function deleteMovement(req, res, next) {
     });
     if (!product) {
       res.status(404).send("Product not found");
+      logger.warn("Product not found");
       return;
     }
 
@@ -218,6 +253,7 @@ async function deleteMovement(req, res, next) {
     await models.Movement.deleteOne({ _id: movementToDelete._id });
     res.send(`Movement deleted :  ${req.params.id}`);
   } catch (err) {
+    logger.error("logger deleteMovement: ", err);
     next(err);
   }
 }
@@ -227,6 +263,8 @@ async function deleteMovement(req, res, next) {
 
 async function getProductMovementsToday(req, res, next) {
   console.log("getProductMovementsToday with id: ", req.params.productid);
+  logger.info("getProductMovementsToday with id: ", req.params.productid);
+
   try {
     const today = new Date(new Date().setHours(-3, 0, 0, 0));
 
@@ -235,6 +273,7 @@ async function getProductMovementsToday(req, res, next) {
     ).populate("movements");
     if (!product) {
       res.status(404).send("Product not found");
+      logger.warn("Product not found");
       return;
     }
 
@@ -246,18 +285,22 @@ async function getProductMovementsToday(req, res, next) {
       .select("createdAt balance descriptionMovement");
     res.send(movements);
   } catch (err) {
+    logger.error("error getProductMovementsToday: ", err);
     next(err);
   }
 }
 
 async function getProductAmountsToday(req, res, next) {
   console.log("getProductAmountsToday with id: ", req.params.productid);
+  logger.info("getProductAmountsToday with id: ", req.params.productid);
+
   try {
     const product = await models.Product.findById(
       req.params.productid
     ).populate("movements");
     if (!product) {
       res.status(404).send("Product not found");
+      logger.warn("Product not found");
       return;
     }
 
@@ -286,18 +329,28 @@ async function getProductAmountsToday(req, res, next) {
 
     res.send(movements);
   } catch (err) {
+    logger.error("error getProductAmountsToday: ", err);
     next(err);
   }
 }
 
 async function getTodayProductExtractionAmount(req, res, next) {
-  console.log("getTodayProductExtractionAmount with id: ", req.params.productid);
+  console.log(
+    "getTodayProductExtractionAmount with id: ",
+    req.params.productid
+  );
+  logger.info(
+    "getTodayProductExtractionAmount with id: ",
+    req.params.productid
+  );
+
   try {
     const product = await models.Product.findById(
       req.params.productid
     ).populate("movements");
     if (!product) {
       res.status(404).send("Product not found");
+      logger.warn("Product not found");
       return;
     }
 
@@ -324,18 +377,21 @@ async function getTodayProductExtractionAmount(req, res, next) {
 
     res.send(movements);
   } catch (err) {
+    logger.error("error getTodayProductExtractionAmount: ", err);
     next(err);
   }
 }
 
 async function accountExceedsDailyExtractionAmount(productid) {
   console.log("accountExceedsDailyExtractionAmount with id: ", productid);
+  logger.info("accountExceedsDailyExtractionAmount with id: ", productid);
   try {
     const product = await models.Product.findById(productid).populate(
       "movements"
     );
     if (!product) {
       res.status(404).send("Product not found");
+      logger.warn("Product not found");
       return;
     }
 
@@ -360,9 +416,9 @@ async function accountExceedsDailyExtractionAmount(productid) {
       },
     ]);
 
-    if (!movements || movements.length===0){
+    if (!movements || movements.length === 0) {
       return false;
-    } 
+    }
 
     if (movements[0].sumamonto > product.extractionLimit) {
       return true;
@@ -370,13 +426,15 @@ async function accountExceedsDailyExtractionAmount(productid) {
       return false;
     }
   } catch (err) {
+    logger.error("error accountExceedsDailyExtractionAmount: ", err);
     next(err);
   }
 }
 
-
 async function getProductMovementsDates(req, res, next) {
   console.log("getProductMovementsDates with id: ", req.params.productid);
+  logger.info("getProductMovementsDates with id: ", req.params.productid);
+
   try {
     const startdate = new Date(req.params.from);
     const enddate = new Date(req.params.to);
@@ -386,6 +444,7 @@ async function getProductMovementsDates(req, res, next) {
     ).populate("movements");
     if (!product) {
       res.status(404).send("Product not found");
+      logger.warn("Product not found");
       return;
     }
 
@@ -397,19 +456,21 @@ async function getProductMovementsDates(req, res, next) {
       .select("createdAt balance descriptionMovement");
     res.send(movements);
   } catch (err) {
+    logger.error("error getProductMovementsDates: ", err);
     next(err);
   }
 }
 
 async function getProductAmountsDates(req, res, next) {
   console.log("getProductAmountsDates with id: ", req.params.productid);
+  error.info("getProductAmountsDates with id: ", req.params.productid);
   try {
-    
     const product = await models.Product.findById(
       req.params.productid
     ).populate("movements");
     if (!product) {
       res.status(404).send("Product not found");
+      logger.warn("Product not found");
       return;
     }
 
@@ -437,6 +498,7 @@ async function getProductAmountsDates(req, res, next) {
 
     res.send(movements);
   } catch (err) {
+    logger.error("error getProductAmountsDates: ", err);
     next(err);
   }
 }

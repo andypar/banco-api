@@ -4,22 +4,24 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { loggers } = require("winston");
 const dotenv = require("dotenv").config();
-
 
 router.post("/login", signIn);
 router.post("/logout", logout);
 
-
 async function signIn(req, res, next) {
   console.log(`Creating user token`);
+  logger.info(`Creating user token`);
 
   if (!req.body.username) {
-    res.status(400).send("Missing email parameter");
+    res.status(400).send("Missing username parameter");
+    logger.warn("Missing username parameter");
   }
 
   if (!req.body.password) {
     res.status(404).send("Missing password parameter");
+    logger.warn("Missing password parameter");
   }
 
   try {
@@ -30,15 +32,16 @@ async function signIn(req, res, next) {
 
     if (!user) {
       res.status(404).send("user not found");
+      logger.warn("user not found");
     }
 
-    console.log("Checking user password");
     const result = await user.checkPassword(req.body.password);
 
     delete user.password;
 
     if (!result.isOk) {
       res.status(404).send("User password is invalid");
+      logger.warn("User password is invalid");
     }
 
     const payload = {
@@ -53,29 +56,17 @@ async function signIn(req, res, next) {
     res.cookie("token", token, { maxAge: process.env.JWT_EXPIRES_IN * 1000 });
     res.status(201).send({ token: `Bearer ${token}`, user: payload });
   } catch (err) {
+    logger.error("error signIn: ", err);
     next(err);
   }
 }
-
-async function validateExistingEmail(user) {
-  try {
-    const useremail = await models.User.findOne({ email: user.email });
-    if (useremail) {
-      return true;
-    } else {
-      return false;
-    }
-  } catch (err) {
-    next(err);
-  }
-}
-
 
 const welcome = async (req, res, next) => {
   const token = req.cookies.token;
 
   // if the cookie is not set, return an unauthorized error
   if (!token) {
+    logger.warn("Cookie not set");
     return res.status(401).send("Cookie not set").end();
   }
 
@@ -89,10 +80,12 @@ const welcome = async (req, res, next) => {
   } catch (e) {
     if (e instanceof jwt.JsonWebTokenError) {
       // if the error thrown is because the JWT is unauthorized, return a 401 error
+      logger.warn("JWT is unauthorized");
       return res.status(401).send("JWT is unauthorized").end();
     }
 
     // otherwise, return a bad request error
+    logger.warn("bad request");
     return res.status(400).send("bad request").end();
   }
   next();
@@ -103,6 +96,7 @@ const refresh = async (req, res, next) => {
   const token = req.cookies.token;
 
   if (!token) {
+    logger.warn("Cookie not set");
     return res.status(401).send("Cookie not set").end();
   }
 
@@ -111,8 +105,10 @@ const refresh = async (req, res, next) => {
     payload = jwt.verify(token, process.env.JWT_SECRET);
   } catch (e) {
     if (e instanceof jwt.JsonWebTokenError) {
+      logger.warn("JWT is unauthorized");
       return res.status(401).send("JWT is unauthorized").end();
     }
+    logger.warn("bad request");
     return res.status(400).send("bad request").end();
   }
   // (END) The code uptil this point is the same as the first part of the `welcome` route
@@ -137,19 +133,18 @@ const refresh = async (req, res, next) => {
       maxAge: process.env.JWT_EXPIRES_IN * 1000,
     });
   }
-
   // res.end()
   next();
 };
 
-function logout (req, res, next) {
+function logout(req, res, next) {
   res.cookie("token", "", { maxAge: 0 });
   res.end();
   next();
-};
+}
 
 module.exports = {
   welcome,
   refresh,
-  router
+  router,
 };

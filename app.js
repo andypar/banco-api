@@ -1,7 +1,6 @@
 const express = require("express");
 const app = express();
-// const cookieParser = require('cookie-parser');
-const logger = require("morgan");
+const morgan = require("morgan");
 const dotenv = require("dotenv").config();
 const bodyParser = require("body-parser");
 const indexRouter = require("./routes/index");
@@ -19,10 +18,9 @@ const db = require("./db");
 
 
 // middleware
-// app.use(logger("dev"));
-var accessLogStream = fs.createWriteStream(path.join(__dirname, 'applogger.log'), { flags: 'a' });
+var accessLogStream = fs.createWriteStream(path.join(__dirname, 'logs/applogger.log'), { flags: 'a' });
 
-app.use(logger('combined', { stream: accessLogStream }))
+app.use(morgan('combined', { stream: accessLogStream }))
 app.use(bodyParser.json());
 app.use(cookieParser())
 //const { check, validationResult } = require('express-validator');
