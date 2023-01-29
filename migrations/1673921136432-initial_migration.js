@@ -3,110 +3,117 @@ const mongoose = require("mongoose");
 //const Schema = mongoose.Schema;
 //const { ObjectId } = mongoose.Schema.Types.ObjectId;
 
-
 async function up() {
   await models.GenderType.create([
     {
-      _id: new mongoose.Types.ObjectId('000000000000000000000000'),
+      _id: new mongoose.Types.ObjectId("000000000000000000000000"),
       description: "f",
     },
     {
-      _id: new mongoose.Types.ObjectId('000000000000000000000001'),
+      _id: new mongoose.Types.ObjectId("000000000000000000000001"),
       description: "m",
     },
     {
-      _id: new mongoose.Types.ObjectId('000000000000000000000002'),
+      _id: new mongoose.Types.ObjectId("000000000000000000000002"),
       description: "x",
     },
-  ])
+  ]);
 
   await models.CurrencyType.create([
     {
-      _id: new mongoose.Types.ObjectId('000000000000000000000000'),
+      _id: new mongoose.Types.ObjectId("000000000000000000000000"),
       description: "ars",
     },
     {
-      _id: new mongoose.Types.ObjectId('000000000000000000000001'),
+      _id: new mongoose.Types.ObjectId("000000000000000000000001"),
       description: "usd",
     },
-  ])
+  ]);
 
   await models.MovementType.create([
     {
-      _id: new mongoose.Types.ObjectId('000000000000000000000000'),
+      _id: new mongoose.Types.ObjectId("000000000000000000000000"),
       description: "deposito",
     },
     {
-      _id: new mongoose.Types.ObjectId('000000000000000000000001'),
+      _id: new mongoose.Types.ObjectId("000000000000000000000001"),
       description: "extraccion",
     },
     // {
     //   _id: new mongoose.Types.ObjectId('000000000000000000000002'),
     //   description: "transferencia",
     // },
-  ])
+  ]);
 
   await models.ProductType.create([
     {
-      _id: new mongoose.Types.ObjectId('000000000000000000000000'),
+      _id: new mongoose.Types.ObjectId("000000000000000000000000"),
       description: "ca",
     },
     {
-      _id: new mongoose.Types.ObjectId('000000000000000000000001'),
+      _id: new mongoose.Types.ObjectId("000000000000000000000001"),
       description: "cc",
     },
-  ])
+  ]);
 
   await models.PersonType.create([
     {
-      _id: new mongoose.Types.ObjectId('000000000000000000000000'),
+      _id: new mongoose.Types.ObjectId("000000000000000000000000"),
       description: "f",
     },
     {
-      _id: new mongoose.Types.ObjectId('000000000000000000000001'),
+      _id: new mongoose.Types.ObjectId("000000000000000000000001"),
       description: "j",
     },
-  ])
+  ]);
 
   await models.RoleType.create([
     {
-      _id: new mongoose.Types.ObjectId('000000000000000000000000'),
+      _id: new mongoose.Types.ObjectId("000000000000000000000000"),
       description: "admin",
     },
     {
-      _id: new mongoose.Types.ObjectId('000000000000000000000001'),
+      _id: new mongoose.Types.ObjectId("000000000000000000000001"),
       description: "employee",
     },
     {
-      _id: new mongoose.Types.ObjectId('000000000000000000000002'),
+      _id: new mongoose.Types.ObjectId("000000000000000000000002"),
       description: "user",
     },
-  ])
+  ]);
 }
 
 async function down() {
   await models.GenderType.deleteMany({
-    _id: ['000000000000000000000000','000000000000000000000001', '000000000000000000000002'],
+    _id: [
+      "000000000000000000000000",
+      "000000000000000000000001",
+      "000000000000000000000002",
+    ],
   });
 
   await models.CurrencyType.deleteMany({
-    _id: ['000000000000000000000000','000000000000000000000001'],
+    _id: ["000000000000000000000000", "000000000000000000000001"],
   });
 
   await models.MovementType.deleteMany({
-    _id: ['000000000000000000000000','000000000000000000000001'], //'000000000000000000000002'
+    _id: ["000000000000000000000000", "000000000000000000000001"], //'000000000000000000000002'
   });
 
   await models.ProductType.deleteMany({
-    _id: ['000000000000000000000000','000000000000000000000001'],
+    _id: ["000000000000000000000000", "000000000000000000000001"],
   });
 
   await models.PersonType.deleteMany({
-    _id: ['000000000000000000000000','000000000000000000000001'],
+    _id: ["000000000000000000000000", "000000000000000000000001"],
   });
 
   await models.RoleType.deleteMany({
-    _id: ['000000000000000000000000','000000000000000000000001','000000000000000000000002'],
+    _id: [
+      "000000000000000000000000",
+      "000000000000000000000001",
+      "000000000000000000000002",
+    ],
   });
 }
 

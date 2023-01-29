@@ -1,5 +1,4 @@
-
-const  validator = {};
+const validator = {};
 
 const createUserValidator = require("./user");
 const updateUserValidator = require("./user");
@@ -14,4 +13,3 @@ validator["movementValidator"] = movementValidator;
 module.exports = {
   validator,
 };
-
