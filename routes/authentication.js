@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { loggers } = require("winston");
 const dotenv = require("dotenv").config();
+const logger = require("../logger");
 
 router.post("/login", signIn);
 router.post("/logout", logout);
@@ -54,8 +55,8 @@ async function signIn(req, res, next) {
     });
 
     res.cookie("token", token, { maxAge: process.env.JWT_EXPIRES_IN * 1000 });
-    res.status(201).send({ token: `Bearer ${token}`, user: payload });
-  } catch (err) {
+    res.status(201).send({ token: `${token}`, user: payload });
+  } catch (err) { 
     logger.error("error signIn: ", err);
     next(err);
   }
@@ -65,9 +66,13 @@ const welcome = async (req, res, next) => {
   const token = req.cookies.token;
 
   // if the cookie is not set, return an unauthorized error
+  // aprovecho y lo mando en los headers
   if (!token) {
-    logger.warn("Cookie not set");
-    return res.status(401).send("Cookie not set").end();
+    token=req.headers.authorization
+    if (!token){
+      logger.warn("Cookie not set");
+      return res.status(401).send("Cookie not set").end();  
+    }
   }
 
   var payload;
@@ -93,11 +98,15 @@ const welcome = async (req, res, next) => {
 
 const refresh = async (req, res, next) => {
   // (BEGIN) The code uptil this point is the same as the first part of the `welcome` route
-  const token = req.cookies.token;
+  token = req.cookies.token;
 
+  // aprovecho y lo mando en los headers
   if (!token) {
-    logger.warn("Cookie not set");
-    return res.status(401).send("Cookie not set").end();
+    token=req.headers.authorization
+    if (!token){
+      logger.warn("Cookie not set");
+      return res.status(401).send("Cookie not set").end();  
+    }
   }
 
   var payload;
