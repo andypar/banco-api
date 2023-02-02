@@ -1,3 +1,4 @@
+const logger = require("../logger");
 const { models } = require("../db");
 
 createUserValidator = async (req, res, next) => {

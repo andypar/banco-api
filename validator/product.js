@@ -1,3 +1,5 @@
+const logger = require("../logger");
+
 updateProductValidator = async (req, res, next) => {
   // Alias
   req.check("alias", "El alias no puede estar vacío").notEmpty();

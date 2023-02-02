@@ -1,3 +1,5 @@
+const logger = require("../logger");
+
 movementValidator = async (req, res, next) => {
   // Balance
   req.check("balance", "El monto no puede estar vacío").notEmpty();
