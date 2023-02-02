@@ -9,6 +9,7 @@ updateProductValidator = async (req, res, next) => {
   const errors = await req.validationErrors();
   if (errors) {
     const firstError = errors.map((error) => error.msg)[0];
+    logger.warn(firstError);
     return res.status(400).json({ error: firstError });
   }
 
