@@ -63,6 +63,7 @@ async function getUserById(req, res, next) {
       logger.warn("User not found");
       return;
     }
+    user.dateBirth.setHours(user.dateBirth.getHours()+3) //para que lo renderice bien el navegador
     res.send(user);
   } catch (err) {
     logger.error("error getUserById: ", err);

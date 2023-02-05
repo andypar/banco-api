@@ -7,15 +7,15 @@ async function up() {
   await models.GenderType.create([
     {
       _id: new mongoose.Types.ObjectId("000000000000000000000000"),
-      description: "f",
+      description: "femenino",
     },
     {
       _id: new mongoose.Types.ObjectId("000000000000000000000001"),
-      description: "m",
+      description: "masculino",
     },
     {
       _id: new mongoose.Types.ObjectId("000000000000000000000002"),
-      description: "x",
+      description: "indeterminado",
     },
   ]);
 
@@ -33,11 +33,11 @@ async function up() {
   await models.MovementType.create([
     {
       _id: new mongoose.Types.ObjectId("000000000000000000000000"),
-      description: "deposito",
+      description: "depósito",
     },
     {
       _id: new mongoose.Types.ObjectId("000000000000000000000001"),
-      description: "extraccion",
+      description: "extración",
     },
     // {
     //   _id: new mongoose.Types.ObjectId('000000000000000000000002'),
@@ -48,22 +48,22 @@ async function up() {
   await models.ProductType.create([
     {
       _id: new mongoose.Types.ObjectId("000000000000000000000000"),
-      description: "ca",
+      description: "caja-ahorro",
     },
     {
       _id: new mongoose.Types.ObjectId("000000000000000000000001"),
-      description: "cc",
+      description: "cuenta-corriente",
     },
   ]);
 
   await models.PersonType.create([
     {
       _id: new mongoose.Types.ObjectId("000000000000000000000000"),
-      description: "f",
+      description: "física",
     },
     {
       _id: new mongoose.Types.ObjectId("000000000000000000000001"),
-      description: "j",
+      description: "jurídica",
     },
   ]);
 
