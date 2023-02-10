@@ -10,6 +10,8 @@ const logger = require("../logger");
 
 /* GET users listing. */
 router.get("/", getAllUsers);
+router.get("/company", getAllCompanies);
+router.get("/users", getAllPersons);
 router.get("/:id", getUserById);
 router.post("/", createUserValidator, createUser);
 router.put("/:id", updateUserValidator, updateUser);
@@ -36,6 +38,52 @@ async function getAllUsers(req, res, next) {
     res.send(users);
   } catch (err) {
     logger.error("error getAllUsers: ", err);
+    next(err);
+  }
+  next();
+}
+
+async function getAllCompanies(req, res, next) {
+  console.log("getAllCompanies");
+  logger.info("getAllCompanies");
+
+  try {
+    const users = await models.User.find({
+      isActive: true,
+      role: "000000000000000000000002",
+      personType: "000000000000000000000001"
+    })
+      .populate("products")
+      .populate("gender")
+      .populate("personType");
+
+    //.populate("role", { match: { description: "user" } });
+    res.send(users);
+  } catch (err) {
+    logger.error("error getAllCompanies: ", err);
+    next(err);
+  }
+  next();
+}
+
+async function getAllPersons(req, res, next) {
+  console.log("getAllPersons");
+  logger.info("getAllPersons");
+
+  try {
+    const users = await models.User.find({
+      isActive: true,
+      role: "000000000000000000000002",
+      personType: "000000000000000000000000"
+    })
+      .populate("products")
+      .populate("gender")
+      .populate("personType");
+
+    //.populate("role", { match: { description: "user" } });
+    res.send(users);
+  } catch (err) {
+    logger.error("error getAllPersons: ", err);
     next(err);
   }
   next();
