@@ -30,10 +30,11 @@ async function signIn(req, res, next) {
       { username: req.body.username },
       "+password"
     );
-
+    
     if (!user) {
       res.status(404).send("user not found");
       logger.warn("user not found");
+      return;
     }
 
     const result = await user.checkPassword(req.body.password);
@@ -43,6 +44,8 @@ async function signIn(req, res, next) {
     if (!result.isOk) {
       res.status(404).send("User password is invalid");
       logger.warn("User password is invalid");
+      return;
+
     }
 
     const payload = {
