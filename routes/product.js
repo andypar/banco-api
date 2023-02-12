@@ -90,7 +90,9 @@ async function getUserAvailableProducts(req, res, next) {
     currentproducts = [];
     product.forEach((element) => {
       currentproducts.push({
+        type: element.type.id,
         type: element.type.description,
+        currency: element.currency.description,
         currency: element.currency.description,
       });
     });
@@ -106,7 +108,9 @@ async function getUserAvailableProducts(req, res, next) {
     types.forEach((element) => {
       currencies.forEach((element2) => {
         availableproducts.push({
+          type_id: element._id,
           type: element.description,
+          currency_id: element2._id,
           currency: element2.description,
         });
       });
