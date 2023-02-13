@@ -32,7 +32,8 @@ async function getAllUsers(req, res, next) {
     })
       .populate("products")
       .populate("gender")
-      .populate("personType");
+      .populate("personType")
+      ;
 
     //.populate("role", { match: { description: "user" } });
     res.send(users);
@@ -56,6 +57,7 @@ async function getAllCompanies(req, res, next) {
       .populate("products")
       .populate("gender")
       .populate("personType");
+
 
     //.populate("role", { match: { description: "user" } });
     res.send(users);
@@ -104,7 +106,22 @@ async function getUserById(req, res, next) {
       .populate("products")
       .populate("gender")
       .populate("personType")
-      .populate("role");
+      .populate("role")
+      .populate({ 
+        path: 'products',
+        populate: {
+          path: 'type',
+          model: 'ProductType'
+        } 
+     })
+     .populate({ 
+      path: 'products',
+      populate: {
+        path: 'currency',
+        model: 'CurrencyType'
+      } 
+   });
+    
 
     if (!user) {
       res.status(404).send("user not found");
