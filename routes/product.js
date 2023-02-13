@@ -180,7 +180,7 @@ async function createProduct(req, res, next) {
         updatedAt: new Date(),
       });
 
-      newProduct.save().then(res.send(newProduct));
+      newProduct.save({safe:true}).then(res.send(newProduct));
     }
   } catch (err) {
     logger.error("error createProduct: ", err);
