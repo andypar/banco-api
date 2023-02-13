@@ -240,6 +240,8 @@ async function updateProduct(req, res, next) {
         return;
       } else {
         productToUpdate.alias = product.alias;
+        productToUpdate.overdraftAmount = product.overdraftAmount;
+        productToUpdate.extractionLimit = product.extractionLimit;
         productToUpdate.updatedAt = new Date();
 
         await productToUpdate.save();
