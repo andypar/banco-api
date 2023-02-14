@@ -159,29 +159,41 @@ async function createProduct(req, res, next) {
       return;
     } else {
       const cbuNumber = generate(22);
-      const newProduct = new models.Product({
-        type: producttype._id,
-        accountNumber:
-          cbuNumber.substring(3, 7) +
-          "/" +
-          cbuNumber.substring(7, 19) +
-          "/" +
-          cbuNumber.substring(19, 21),
-        cbu: cbuNumber,
-        alias: makealias(5) + "." + makealias(5) + "." + makealias(5),
-        //balanceAmount: generate(5),
-        balanceAmount: 0,
-        // overdraftAmount: generate(4),
-        overdraftAmount: product.overdraftAmount,
-        // extractionLimit: generate(4),
-        extractionLimit: product.extractionLimit,
-        currency: currencytype._id,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
 
-      // Safe create:
-      newProduct.save({safe:true}).then(res.send(newProduct)); 
+      const session = await mongoose.startSession();
+      session.startTransaction();
+
+      try {
+        const newProduct = new models.Product({
+          type: producttype._id,
+          accountNumber:
+            cbuNumber.substring(3, 7) +
+            "/" +
+            cbuNumber.substring(7, 19) +
+            "/" +
+            cbuNumber.substring(19, 21),
+          cbu: cbuNumber,
+          alias: makealias(5) + "." + makealias(5) + "." + makealias(5),
+          //balanceAmount: generate(5),
+          balanceAmount: 0,
+          // overdraftAmount: generate(4),
+          overdraftAmount: product.overdraftAmount,
+          // extractionLimit: generate(4),
+          extractionLimit: product.extractionLimit,
+          currency: currencytype._id,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+
+        // Safe create:
+        newProduct.save({ safe: true }).then(res.send(newProduct));
+        session.commitTransaction();
+      } catch (err) {
+        await session.abortTransaction();
+        throw err;
+      } finally {
+        session.endSession();
+      }
     }
   } catch (err) {
     logger.error("error createProduct: ", err);

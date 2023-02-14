@@ -37,12 +37,8 @@ async function up() {
     },
     {
       _id: new mongoose.Types.ObjectId("000000000000000000000001"),
-      description: "extración",
-    },
-    // {
-    //   _id: new mongoose.Types.ObjectId('000000000000000000000002'),
-    //   description: "transferencia",
-    // },
+      description: "extracción",
+    }
   ]);
 
   await models.ProductType.create([
