@@ -136,23 +136,36 @@ async function createExtractionMovement(req, res, next) {
         }
         break;
     }
+    const session = await mongoose.startSession()
 
-    const newMovement = new models.Movement({
-      accountFrom: req.params.productfromid,
-      balance: movement.balance,
-      totalBalance: product.balanceAmount - movement.balance,
-      type: movementtype,
-      descriptionMovement: movement.descriptionMovement,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    try {
+      session.startTransaction();
 
-    newMovement.save();
+      const newMovement = new models.Movement({
+        accountFrom: req.params.productfromid,
+        balance: movement.balance,
+        totalBalance: product.balanceAmount - movement.balance,
+        type: movementtype,
+        descriptionMovement: movement.descriptionMovement,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
-    product.balanceAmount = product.balanceAmount - movement.balance;
-    product.movements.push(newMovement);
-    product.save();
-    res.send(newMovement);
+      newMovement.save();
+
+      product.balanceAmount = product.balanceAmount - movement.balance;
+      product.movements.push(newMovement);
+      await product.save();
+      session.commitTransaction()
+      res.send(newMovement);
+  }  catch (err) {
+    session.abortTransaction()
+    logger.error("error transaction movement: ", err);
+    throw err
+  } finally {
+    session.endSession();
+  }
+   
   } catch (err) {
     logger.error("error createExtractionMovement: ", err);
     next(err);

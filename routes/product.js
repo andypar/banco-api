@@ -186,7 +186,7 @@ async function createProduct(req, res, next) {
         });
 
         // Safe create:
-        newProduct.save({ safe: true }).then(res.send(newProduct));
+        await newProduct.save({ safe: true }).then(res.send(newProduct));
         session.commitTransaction();
       } catch (err) {
         await session.abortTransaction();
