@@ -42,7 +42,15 @@ async function getProductById(req, res, next) {
     const product = await models.Product.findById(req.params.id)
       .populate("movements")
       .populate("currency")
-      .populate("type");
+      .populate("type")
+      .populate({ 
+        path: 'movements',
+        options:{ sort: '-createdAt' },
+        populate: {
+          path: 'type',
+          model: 'MovementType',
+        }})
+        ;
 
     if (!product) {
       res.status(404).send("product not found");
@@ -186,8 +194,9 @@ async function createProduct(req, res, next) {
         });
 
         // Safe create:
-        await newProduct.save({ safe: true }).then(res.send(newProduct));
+        await newProduct.save({ safe: true });
         session.commitTransaction();
+        res.send(newProduct)
       } catch (err) {
         await session.abortTransaction();
         throw err;
