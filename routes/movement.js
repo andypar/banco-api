@@ -91,7 +91,7 @@ async function createExtractionMovement(req, res, next) {
     }
 
     switch (producttype.description) {
-      case "ca":
+      case "caja-ahorro":
         // CA:
         // 1) valido que mi saldo sea menor a lo que quier extraer
         // 2) valido que lo que quiera sacar no supere mi limite de extraccion diario
@@ -112,7 +112,7 @@ async function createExtractionMovement(req, res, next) {
         }
         break;
 
-      case "cc":
+      case "cuenta-corriente":
         // CC:
         // 1) valido que mi saldo+sobregiro sea menor a lo que quier extraer
         // 2) valido que lo que quiera sacar no supere mi limite de extraccion diario
@@ -136,7 +136,7 @@ async function createExtractionMovement(req, res, next) {
         }
         break;
     }
-    const session = await mongoose.startSession()
+    const session = await mongoose.startSession();
 
     try {
       session.startTransaction();
@@ -151,21 +151,20 @@ async function createExtractionMovement(req, res, next) {
         updatedAt: new Date(),
       });
 
-      newMovement.save();
+      await newMovement.save();
 
       product.balanceAmount = product.balanceAmount - movement.balance;
       product.movements.push(newMovement);
       await product.save();
-      session.commitTransaction()
+      session.commitTransaction();
       res.send(newMovement);
-  }  catch (err) {
-    session.abortTransaction()
-    logger.error("error transaction movement: ", err);
-    throw err
-  } finally {
-    session.endSession();
-  }
-   
+    } catch (err) {
+      session.abortTransaction();
+      logger.error("error transaction movement: ", err);
+      throw err;
+    } finally {
+      session.endSession();
+    }
   } catch (err) {
     logger.error("error createExtractionMovement: ", err);
     next(err);
@@ -195,24 +194,36 @@ async function createDepositMovement(req, res, next) {
       return;
     }
 
-    const newMovement = new models.Movement({
-      accountFrom: req.params.producttoid,
-      balance: movement.balance,
-      totalBalance: product.balanceAmount + Number(movement.balance),
-      type: movementtype,
-      descriptionMovement: movement.descriptionMovement,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-    newMovement.save();
+    const session = await mongoose.startSession();
 
-    product.balanceAmount = product.balanceAmount + Number(movement.balance);
-    product.movements.push(newMovement);
-    product.save();
+    try {
+      session.startTransaction();
 
-    res.send(newMovement);
+      const newMovement = new models.Movement({
+        accountFrom: req.params.producttoid,
+        balance: movement.balance,
+        totalBalance: product.balanceAmount + Number(movement.balance),
+        type: movementtype,
+        descriptionMovement: movement.descriptionMovement,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      await newMovement.save();
+
+      product.balanceAmount = product.balanceAmount + Number(movement.balance);
+      product.movements.push(newMovement);
+      await product.save();
+      session.commitTransaction();
+      res.send(newMovement);
+    } catch (err) {
+      session.abortTransaction();
+      logger.error("error: createDepositMovement: ", err);
+      throw err;
+    } finally {
+      session.endSession();
+    }
   } catch (err) {
-    logger.error("error: createDepositMovement: ", err);
+    logger.error("error createDepositMovement: ", err);
     next(err);
   }
 }
@@ -253,12 +264,12 @@ async function deleteMovement(req, res, next) {
       return;
     }
 
-    if (movementtype.description === "extraccion") {
+    if (movementtype.description === "extracción") {
       product.balanceAmount =
         product.balanceAmount + Number(movementToDelete.balance);
       product.save();
     }
-    if (movementtype.description === "deposito") {
+    if (movementtype.description === "depósito") {
       product.balanceAmount = product.balanceAmount - movementToDelete.balance;
       product.save();
     }
@@ -476,7 +487,7 @@ async function getProductMovementsDates(req, res, next) {
 
 async function getProductAmountsDates(req, res, next) {
   console.log("getProductAmountsDates with id: ", req.params.productid);
-  error.info("getProductAmountsDates with id: ", req.params.productid);
+  logger.info("getProductAmountsDates with id: ", req.params.productid);
   try {
     const product = await models.Product.findById(
       req.params.productid
