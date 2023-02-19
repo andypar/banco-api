@@ -476,8 +476,12 @@ async function getProductMovementsDates(req, res, next) {
       createdAt: { $gte: startdate, $lte: enddate },
       accountFrom: product._id,
     })
-      .populate({ path: "type", model: "MovementType" })
-      .select("createdAt balance descriptionMovement");
+      .populate({
+        path: "type",
+        model: "MovementType",
+      })
+      .sort("-createdAt")
+      .select("createdAt balance descriptionMovement totalBalance");
     res.send(movements);
   } catch (err) {
     logger.error("error getProductMovementsDates: ", err);

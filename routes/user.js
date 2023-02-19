@@ -12,7 +12,7 @@ const logger = require("../logger");
 router.get("/", getAllUsers);
 router.get("/company", getAllCompanies);
 router.get("/users", getAllPersons);
-router.get("/:id", getUserById);
+router.get("/detail/:id", getUserById);
 router.post("/", createUserValidator, createUser);
 router.put("/:id", updateUserValidator, updateUser);
 router.delete("/:id", deleteUser);
