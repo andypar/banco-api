@@ -32,9 +32,7 @@ async function getAllUsers(req, res, next) {
     })
       .populate("products")
       .populate("gender")
-      .populate("personType")
-      ;
-
+      .populate("personType");
     //.populate("role", { match: { description: "user" } });
     res.send(users);
   } catch (err) {
@@ -52,12 +50,11 @@ async function getAllCompanies(req, res, next) {
     const users = await models.User.find({
       isActive: true,
       role: "000000000000000000000002",
-      personType: "000000000000000000000001"
+      personType: "000000000000000000000001",
     })
       .populate("products")
       .populate("gender")
       .populate("personType");
-
 
     //.populate("role", { match: { description: "user" } });
     res.send(users);
@@ -76,7 +73,7 @@ async function getAllPersons(req, res, next) {
     const users = await models.User.find({
       isActive: true,
       role: "000000000000000000000002",
-      personType: "000000000000000000000000"
+      personType: "000000000000000000000000",
     })
       .populate("products")
       .populate("gender")
@@ -107,28 +104,27 @@ async function getUserById(req, res, next) {
       .populate("gender")
       .populate("personType")
       .populate("role")
-      .populate({ 
-        path: 'products',
+      .populate({
+        path: "products",
         populate: {
-          path: 'type',
-          model: 'ProductType'
-        } 
-     })
-     .populate({ 
-      path: 'products',
-      populate: {
-        path: 'currency',
-        model: 'CurrencyType'
-      } 
-   });
-    
+          path: "type",
+          model: "ProductType",
+        },
+      })
+      .populate({
+        path: "products",
+        populate: {
+          path: "currency",
+          model: "CurrencyType",
+        },
+      });
 
     if (!user) {
       res.status(404).send("user not found");
       logger.warn("User not found");
       return;
     }
-    user.dateBirth.setHours(user.dateBirth.getHours()+3) //para que lo renderice bien el navegador
+    user.dateBirth.setHours(user.dateBirth.getHours() + 3); //para que lo renderice bien el navegador
     res.send(user);
   } catch (err) {
     logger.error("error getUserById: ", err);
@@ -190,24 +186,37 @@ async function createUser(req, res, next) {
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(user.password, saltRounds);
 
-      const newUser = new models.User({
-        name: user.name,
-        gender: gender._id,
-        dni: user.dni,
-        dateBirth: user.dateBirth,
-        email: user.email,
-        password: hashedPassword,
-        username: user.username,
-        telephone: user.telephone,
-        personType: personType._id,
-        cuilCuit: user.cuilCuit,
-        isActive: true,
-        role: roleType._id,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
+      const session = await mongoose.startSession();
+      session.startTransaction();
 
-      newUser.save().then(res.send(newUser));
+      try {
+        const newUser = new models.User({
+          name: user.name,
+          gender: gender._id,
+          dni: user.dni,
+          dateBirth: user.dateBirth,
+          email: user.email,
+          password: hashedPassword,
+          username: user.username,
+          telephone: user.telephone,
+          personType: personType._id,
+          cuilCuit: user.cuilCuit,
+          isActive: true,
+          role: roleType._id,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+
+        await newUser.save({ safe: true });
+        session.commitTransaction();
+        res.send(newUser)
+
+      } catch (err) {
+        await session.abortTransaction();
+        throw err;
+      } finally {
+        session.endSession();
+      }
     }
   } catch (err) {
     logger.error("error createUser: ", err);
