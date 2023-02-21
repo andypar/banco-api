@@ -290,7 +290,7 @@ async function getProductMovementsToday(req, res, next) {
   logger.info("getProductMovementsToday with id: ", req.params.productid);
 
   try {
-    const today = new Date(new Date().setHours(-3, 0, 0, 0));
+    const today = new Date(new Date().setHours(3, 0, 0, 0));
 
     const product = await models.Product.findById(
       req.params.productid
@@ -328,7 +328,7 @@ async function getProductAmountsToday(req, res, next) {
       return;
     }
 
-    const today = new Date(new Date().setHours(-3, 0, 0, 0));
+    const today = new Date(new Date().setHours(3, 0, 0, 0));
     //console.log(today)
     //console.log(new Date())
 
@@ -378,7 +378,7 @@ async function getTodayProductExtractionAmount(req, res, next) {
       return;
     }
 
-    const today = new Date(new Date().setHours(-3, 0, 0, 0));
+    const today = new Date(new Date().setHours(3, 0, 0, 0));
     const movements = await models.Movement.aggregate([
       {
         $match: {
@@ -419,7 +419,7 @@ async function accountExceedsDailyExtractionAmount(productid) {
       return;
     }
 
-    const today = new Date(new Date().setHours(-3, 0, 0, 0));
+    const today = new Date(new Date().setHours(3, 0, 0, 0));
     const movements = await models.Movement.aggregate([
       {
         $match: {
