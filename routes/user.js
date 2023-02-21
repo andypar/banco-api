@@ -174,14 +174,15 @@ async function createUser(req, res, next) {
       res.status(400).send("El usuario ya se encuentra registrado");
       logger.warn("El usuario ya se encuentra registrado");
       return;
-    } else if (await validateExistingDNI(user)) {
-      res.status(400).send("El numero de DNI ya se encuentra registrado");
-      logger.warn("El numero de DNI ya se encuentra registrado");
-      return;
     } else if (await validateExistingCUILCUIT(user)) {
       res.status(400).send("El numero de CUIT/CUIL ya se encuentra registrado");
       logger.warn("El numero de CUIT/CUIL ya se encuentra registrado");
       return;
+    } else if (await validateExistingDNI(user)) {
+      res.status(400).send("El numero de DNI ya se encuentra registrado");
+      logger.warn("El numero de DNI ya se encuentra registrado");
+      return;
+
     } else {
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(user.password, saltRounds);

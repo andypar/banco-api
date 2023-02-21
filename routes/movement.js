@@ -99,15 +99,15 @@ async function createExtractionMovement(req, res, next) {
           res
             .status(400)
             .send(
-              "Balance of the ca account is lower than the amount to extract"
+              "El saldo de la Caja de Ahorro es inferior al monto a extraer!"
             );
           logger.warn(
-            "Balance of the ca account is lower than the amount to extract"
+            "El saldo de la Caja de Ahorro es inferior al monto a extraer!"
           );
           return;
         } else if (await accountExceedsDailyExtractionAmount(product.id)) {
-          res.status(400).send("Extraction limit exceeded");
-          logger.warn("Extraction limit exceeded");
+          res.status(400).send("Se ha excedido el límite de extracción diario!");
+          logger.warn("Se ha excedido el límite de extracción diario!");
           return;
         }
         break;
@@ -123,15 +123,15 @@ async function createExtractionMovement(req, res, next) {
           res
             .status(400)
             .send(
-              "Balance of the cc account is lower than the amount to extract"
+              "El saldo de la Cuenta Corriente es inferior al monto a extraer!"
             );
           logger.warn(
-            "Balance of the cc account is lower than the amount to extract"
+            "El saldo de la Cuenta Corriente es inferior al monto a extraer!"
           );
           return;
         } else if (await accountExceedsDailyExtractionAmount(product.id)) {
-          res.status(400).send("Extraction limit exceeded");
-          logger.warn("Extraction limit exceeded");
+          res.status(400).send("Se ha excedido el límite de extracción diario!");
+          logger.warn("Se ha excedido el límite de extracción diario!");
           return;
         }
         break;
