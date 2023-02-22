@@ -19,7 +19,36 @@ async function up() {
       password: hashedPassword,
       telephone: "1564078964",
       personType: "000000000000000000000000", //f
-      products: [],
+      products: [
+        {
+          _id: new mongoose.Types.ObjectId("000000000000000000000000"),
+          type: "000000000000000000000000", //ca
+          currency: "000000000000000000000000", //ars
+          accountNumber: "0929/01110051/25",
+          cbu: "0150929201000110051256",
+          alias: "andypar29",
+          balanceAmount: "0",
+          overdraftAmount: "0",
+          extractionLimit: "10000",
+          movements: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          _id: new mongoose.Types.ObjectId("000000000000000000000002"),
+          type: "000000000000000000000001", //cc
+          currency: "000000000000000000000000", //ars
+          accountNumber: "0929/01110051/27",
+          cbu: "0150929201000110051276",
+          alias: "andypar30",
+          balanceAmount: "0",
+          overdraftAmount: "5000",
+          extractionLimit: "10000",
+          movements: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
       cuilCuit: "27-34401327-1",
       isActive: true,
       role: "000000000000000000000002", //user
@@ -40,7 +69,36 @@ async function up() {
       password: hashedPassword,
       telephone: "1564078964",
       personType: "000000000000000000000000", //f
-      products: [],
+      products: [
+        {
+          _id: new mongoose.Types.ObjectId("000000000000000000000001"),
+          type: "000000000000000000000000", //ca
+          currency: "000000000000000000000001", //usd
+          accountNumber: "0929/01110051/26",
+          cbu: "0150929201000110051266",
+          alias: "andypar28",
+          balanceAmount: "0",
+          overdraftAmount: "0",
+          extractionLimit: "1000",
+          movements: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          _id: new mongoose.Types.ObjectId("000000000000000000000003"),
+          type: "000000000000000000000001", //cc
+          currency: "000000000000000000000001", //usd
+          accountNumber: "0929/01110051/28",
+          cbu: "0150929201000110051286",
+          alias: "andypar31",
+          balanceAmount: "0",
+          overdraftAmount: "5000",
+          extractionLimit: "10000",
+          movements: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
       cuilCuit: "27-34401328-1",
       isActive: true,
       role: "000000000000000000000002", //user
@@ -60,7 +118,7 @@ async function up() {
       username: "andypar30",
       password: hashedPassword,
       telephone: "1564078964",
-      personType: "000000000000000000000000", //f
+      personType: "000000000000000000000001", //j
       products: [],
       cuilCuit: "27-34401330-1",
       isActive: true,
@@ -166,7 +224,6 @@ async function down() {
       "000000000000000000000000",
       "000000000000000000000001",
       "000000000000000000000002",
-      ,
       "000000000000000000000003",
     ],
   });
