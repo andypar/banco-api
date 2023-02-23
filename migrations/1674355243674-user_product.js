@@ -20,36 +20,10 @@ async function up() {
       telephone: "1564078964",
       personType: "000000000000000000000000", //f
       products: [
-        {
-          _id: new mongoose.Types.ObjectId("000000000000000000000000"),
-          type: "000000000000000000000000", //ca
-          currency: "000000000000000000000000", //ars
-          accountNumber: "0929/01110051/25",
-          cbu: "0150929201000110051256",
-          alias: "andypar29",
-          balanceAmount: "0",
-          overdraftAmount: "0",
-          extractionLimit: "10000",
-          movements: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          _id: new mongoose.Types.ObjectId("000000000000000000000002"),
-          type: "000000000000000000000001", //cc
-          currency: "000000000000000000000000", //ars
-          accountNumber: "0929/01110051/27",
-          cbu: "0150929201000110051276",
-          alias: "andypar30",
-          balanceAmount: "0",
-          overdraftAmount: "5000",
-          extractionLimit: "10000",
-          movements: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
+        { _id: "000000000000000000000000" },
+        { _id: "000000000000000000000002" },
       ],
-      cuilCuit: "27-34401327-1",
+      cuilCuit: "27344013271",
       isActive: true,
       role: "000000000000000000000002", //user
       createdAt: new Date(),
@@ -58,7 +32,7 @@ async function up() {
     {
       _id: new mongoose.Types.ObjectId("000000000000000000000001"),
       name: {
-        firstName: "Andrea Paula",
+        firstName: "Andrea P.",
         lastName: "Rodriguez",
       },
       gender: "000000000000000000000000", //f
@@ -70,36 +44,10 @@ async function up() {
       telephone: "1564078964",
       personType: "000000000000000000000000", //f
       products: [
-        {
-          _id: new mongoose.Types.ObjectId("000000000000000000000001"),
-          type: "000000000000000000000000", //ca
-          currency: "000000000000000000000001", //usd
-          accountNumber: "0929/01110051/26",
-          cbu: "0150929201000110051266",
-          alias: "andypar28",
-          balanceAmount: "0",
-          overdraftAmount: "0",
-          extractionLimit: "1000",
-          movements: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          _id: new mongoose.Types.ObjectId("000000000000000000000003"),
-          type: "000000000000000000000001", //cc
-          currency: "000000000000000000000001", //usd
-          accountNumber: "0929/01110051/28",
-          cbu: "0150929201000110051286",
-          alias: "andypar31",
-          balanceAmount: "0",
-          overdraftAmount: "5000",
-          extractionLimit: "10000",
-          movements: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
+        { _id: "000000000000000000000001" },
+        { _id: "000000000000000000000003" },
       ],
-      cuilCuit: "27-34401328-1",
+      cuilCuit: "27344013281",
       isActive: true,
       role: "000000000000000000000002", //user
       createdAt: new Date(),
@@ -108,19 +56,19 @@ async function up() {
     {
       _id: new mongoose.Types.ObjectId("000000000000000000000002"),
       name: {
-        firstName: "Andrea Paula",
-        lastName: "Rodriguez",
+        firstName: "Usuario",
+        lastName: "Prueba",
       },
-      gender: "000000000000000000000000", //f
-      dni: "34401330",
-      dateBirth: "1988-12-30",
-      email: "andypar30@hotmail.com",
-      username: "andypar30",
+      gender: "000000000000000000000001", //m
+      dni: "123456711",
+      dateBirth: "1988-12-29",
+      email: "usuario@mail.com",
+      username: "usuario",
       password: hashedPassword,
       telephone: "1564078964",
-      personType: "000000000000000000000001", //j
-      products: [],
-      cuilCuit: "27-34401330-1",
+      personType: "000000000000000000000000", //f
+      products: [{ _id: "000000000000000000000009" }],
+      cuilCuit: "30123456111",
       isActive: true,
       role: "000000000000000000000002", //user
       createdAt: new Date(),
@@ -128,81 +76,111 @@ async function up() {
     },
     {
       _id: new mongoose.Types.ObjectId("000000000000000000000003"),
+      name: {
+        firstName: "Sociedad SRL",
+        lastName: "Sociedad",
+      },
+      gender: "000000000000000000000002", //i
+      dni: "34401330",
+      dateBirth: "1988-12-30",
+      email: "sociedad@mail.com",
+      username: "sociedad",
+      password: hashedPassword,
+      telephone: "1564078964",
+      personType: "000000000000000000000001", //j
+      products: [
+        { _id: "000000000000000000000004" },
+        { _id: "000000000000000000000001" },
+        { _id: "000000000000000000000006" },
+        { _id: "000000000000000000000007" },
+      ],
+      cuilCuit: "30344013301",
+      isActive: true,
+      role: "000000000000000000000002", //user
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      _id: new mongoose.Types.ObjectId("000000000000000000000004"),
+      name: {
+        firstName: "Empresa",
+        lastName: "Empresa",
+      },
+      gender: "000000000000000000000002", //i
+      dni: "12345678",
+      dateBirth: "1988-12-29",
+      email: "empresa@mail.com",
+      username: "empresa",
+      password: hashedPassword,
+      telephone: "1564078964",
+      personType: "000000000000000000000001", //j
+      products: [],
+      cuilCuit: "30123456781",
+      isActive: true,
+      role: "000000000000000000000002", //user
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      _id: new mongoose.Types.ObjectId("000000000000000000000005"),
+      name: {
+        firstName: "Pyme",
+        lastName: "Pyme",
+      },
+      gender: "000000000000000000000002", //i
+      dni: "123456710",
+      dateBirth: "1988-12-29",
+      email: "pyme@pyme.com",
+      username: "pyme1",
+      password: hashedPassword,
+      telephone: "1564078964",
+      personType: "000000000000000000000001", //j
+      products: [{ _id: "000000000000000000000008" }],
+      cuilCuit: "30123456101",
+      isActive: true,
+      role: "000000000000000000000002", //user
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      _id: new mongoose.Types.ObjectId("000000000000000000000006"),
+      name: {
+        firstName: "Test",
+        lastName: "Test",
+      },
+      gender: "000000000000000000000002", //i
+      dni: "123456712",
+      dateBirth: "1988-12-29",
+      email: "test@user.com",
+      username: "testuser",
+      password: hashedPassword,
+      telephone: "1564078964",
+      personType: "000000000000000000000001", //j
+      products: [],
+      cuilCuit: "30123456121",
+      isActive: true,
+      role: "000000000000000000000002", //user
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      _id: new mongoose.Types.ObjectId("000000000000000000000007"),
       name: {
         firstName: "Admin",
         lastName: "Admin",
       },
       gender: "000000000000000000000000", //f
-      dni: "12345678",
+      dni: "123456789",
       dateBirth: "1988-12-29",
       email: "admin@admin.com",
-      username: "andypar31",
+      username: "admin",
       password: hashedPassword,
       telephone: "1564078964",
       personType: "000000000000000000000000", //f
       products: [],
-      cuilCuit: "27-12345678-1",
+      cuilCuit: "27123456791",
       isActive: true,
       role: "000000000000000000000000", //admin
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ]);
-
-  await models.Product.create([
-    {
-      _id: new mongoose.Types.ObjectId("000000000000000000000000"),
-      type: "000000000000000000000000", //ca
-      currency: "000000000000000000000000", //ars
-      accountNumber: "0929/01110051/25",
-      cbu: "0150929201000110051256",
-      alias: "andypar29",
-      balanceAmount: "0",
-      overdraftAmount: "0",
-      extractionLimit: "10000",
-      movements: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      _id: new mongoose.Types.ObjectId("000000000000000000000001"),
-      type: "000000000000000000000000", //ca
-      currency: "000000000000000000000001", //usd
-      accountNumber: "0929/01110051/26",
-      cbu: "0150929201000110051266",
-      alias: "andypar28",
-      balanceAmount: "0",
-      overdraftAmount: "0",
-      extractionLimit: "1000",
-      movements: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      _id: new mongoose.Types.ObjectId("000000000000000000000002"),
-      type: "000000000000000000000001", //cc
-      currency: "000000000000000000000000", //ars
-      accountNumber: "0929/01110051/27",
-      cbu: "0150929201000110051276",
-      alias: "andypar30",
-      balanceAmount: "0",
-      overdraftAmount: "5000",
-      extractionLimit: "10000",
-      movements: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      _id: new mongoose.Types.ObjectId("000000000000000000000003"),
-      type: "000000000000000000000001", //cc
-      currency: "000000000000000000000001", //usd
-      accountNumber: "0929/01110051/28",
-      cbu: "0150929201000110051286",
-      alias: "andypar31",
-      balanceAmount: "0",
-      overdraftAmount: "5000",
-      extractionLimit: "10000",
-      movements: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -216,15 +194,10 @@ async function down() {
       "000000000000000000000001",
       "000000000000000000000002",
       "000000000000000000000003",
-    ],
-  });
-
-  await models.Product.deleteMany({
-    _id: [
-      "000000000000000000000000",
-      "000000000000000000000001",
-      "000000000000000000000002",
-      "000000000000000000000003",
+      "000000000000000000000004",
+      "000000000000000000000005",
+      "000000000000000000000006",
+      "000000000000000000000007",
     ],
   });
 }
