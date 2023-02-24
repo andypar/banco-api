@@ -18,18 +18,21 @@ async function signIn(req, res, next) {
   if (!req.body.username) {
     res.status(400).send("Missing username parameter");
     logger.warn("Missing username parameter");
+    return;
   }
 
   if (!req.body.password) {
     res.status(404).send("Missing password parameter");
     logger.warn("Missing password parameter");
+    return;
   }
 
   try {
     const user = await models.User.findOne(
       { username: req.body.username },
       "+password"
-    );
+    ).populate("role");
+
     
     if (!user) {
       res.status(404).send("user not found");
@@ -51,7 +54,7 @@ async function signIn(req, res, next) {
     const payload = {
       _id: user._id,
       username: user.username,
-      role: user.role,
+      role: user?.role?.description,
     };
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN * 1000,
