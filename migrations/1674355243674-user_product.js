@@ -184,6 +184,27 @@ async function up() {
       createdAt: new Date(),
       updatedAt: new Date(),
     },
+    {
+      _id: new mongoose.Types.ObjectId("000000000000000000000008"),
+      name: {
+        firstName: "Employee",
+        lastName: "Employee",
+      },
+      gender: "000000000000000000000000", //f
+      dni: "11111111",
+      dateBirth: "1988-12-29",
+      email: "employee@employee.com",
+      username: "employee",
+      password: hashedPassword,
+      telephone: "1564078964",
+      personType: "000000000000000000000000", //f
+      products: [],
+      cuilCuit: "27111111111",
+      isActive: true,
+      role: "000000000000000000000001", //employee
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
   ]);
 }
 
@@ -198,6 +219,7 @@ async function down() {
       "000000000000000000000005",
       "000000000000000000000006",
       "000000000000000000000007",
+      "000000000000000000000008",
     ],
   });
 }
