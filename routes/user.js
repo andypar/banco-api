@@ -54,7 +54,8 @@ async function getAllCompanies(req, res, next) {
     })
       .populate("products")
       .populate("gender")
-      .populate("personType");
+      .populate("personType")
+      .sort("-createdAt");
 
     //.populate("role", { match: { description: "user" } });
     res.send(users);
@@ -77,7 +78,8 @@ async function getAllPersons(req, res, next) {
     })
       .populate("products")
       .populate("gender")
-      .populate("personType");
+      .populate("personType")
+      .sort("-createdAt");;
 
     //.populate("role", { match: { description: "user" } });
     res.send(users);

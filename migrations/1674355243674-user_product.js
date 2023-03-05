@@ -2,8 +2,13 @@ const { models } = require("../db");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
+
 async function up() {
-  const hashedPassword = await bcrypt.hash("Perritos123!", 10);
+
+  const salt = bcrypt.genSaltSync(10);
+  const pass = process.env.PASSWORD
+  console.log(pass)
+  const hashedPassword = await bcrypt.hashSync(pass, salt);
   await models.User.create([
     {
       _id: new mongoose.Types.ObjectId("000000000000000000000000"),
