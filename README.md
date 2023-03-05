@@ -10,17 +10,10 @@
 
 ### 2) Instalar paquetes:
 
-`npm i`
-`npm i nodemon`
+1. `npm i`
+2. `npm i nodemon`
 
-### 3) Correr migraciones en el siguiente orden:
-
-`node_modules/.bin/migrate up initial_migration`
-`node_modules/.bin/migrate up movements`
-`node_modules/.bin/migrate up product`
-`node_modules/.bin/migrate up user_product`
-
-### 4) Generar nuevo archivo .env con las siguientes variables de ambiente:
+### 3) Generar nuevo archivo .env con las siguientes variables de ambiente:
 
     PORT=3000
     ENV = "DEV"
@@ -30,6 +23,13 @@
     JWT_EXPIRES_IN = '1d'
     JWT_EXPIRES_COOKIE_IN = 86400000
     PASSWORD = "Perritos123!"
+
+### 4) Correr migraciones en el siguiente orden:
+
+1. `node_modules/.bin/migrate up initial_migration`
+2. `node_modules/.bin/migrate up movements`
+3. `node_modules/.bin/migrate up product`
+4. `node_modules/.bin/migrate up user_product`
 
 ### 5) Ejecutar programa
 
