@@ -105,8 +105,15 @@ async function createExtractionMovement(req, res, next) {
             "El saldo de la Caja de Ahorro es inferior al monto a extraer!"
           );
           return;
-        } else if (await accountExceedsDailyExtractionAmount(product.id, movement.balance)) {
-          res.status(400).send("Se ha excedido el límite de extracción diario!");
+        } else if (
+          await accountExceedsDailyExtractionAmount(
+            product.id,
+            movement.balance
+          )
+        ) {
+          res
+            .status(400)
+            .send("Se ha excedido el límite de extracción diario!");
           logger.warn("Se ha excedido el límite de extracción diario!");
           return;
         }
@@ -129,8 +136,15 @@ async function createExtractionMovement(req, res, next) {
             "El saldo de la Cuenta Corriente es inferior al monto a extraer!"
           );
           return;
-        } else if (await accountExceedsDailyExtractionAmount(product.id, movement.balance)) {
-          res.status(400).send("Se ha excedido el límite de extracción diario!");
+        } else if (
+          await accountExceedsDailyExtractionAmount(
+            product.id,
+            movement.balance
+          )
+        ) {
+          res
+            .status(400)
+            .send("Se ha excedido el límite de extracción diario!");
           logger.warn("Se ha excedido el límite de extracción diario!");
           return;
         }
@@ -444,7 +458,10 @@ async function accountExceedsDailyExtractionAmount(productid, amount) {
       return false;
     }
 
-    if ((parseInt(movements[0].sumamonto)+parseInt(amount)) > product.extractionLimit) {
+    if (
+      parseInt(movements[0].sumamonto) + parseInt(amount) >
+      product.extractionLimit
+    ) {
       return true;
     } else {
       return false;
