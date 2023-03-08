@@ -13,7 +13,7 @@
 1. `npm i`
 2. `npm i nodemon`
 
-### 3) Generar nuevo archivo .env con las siguientes variables de ambiente:
+### 3) Generar nuevo archivo .env con las siguientes variables de ambiente (ejemplos):
 
     PORT=3000
     ENV = "DEV"
@@ -22,7 +22,7 @@
     JWT_SECRET = "my-32-character-ultra-secure-and-ultra-long-secret"
     JWT_EXPIRES_IN = '1d'
     JWT_EXPIRES_COOKIE_IN = 86400000
-    PASSWORD = "Perritos123!"
+    PASSWORD = "Password123!"
 
 ### 4) Correr migraciones en el siguiente orden:
 
